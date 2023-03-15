@@ -18,26 +18,27 @@
 <body>
     <div class="container font-monospace mt-4">
         <div class="calculator-wrapper mx-auto rounded-3 px-2 py-3">
-            <div class="screen text-end ">
-                <div id="calculation" class="text-white-50"> </div>
-                <div id="result" class="h1 text-white"> </div>
-            </div>
-            <div class="row row-cols-4 g-1">
-                <div class="col"><button class="btn btn-dark w-100" value="7" id="7" onclick="onClickHandle(this)">7</button></div>
-                <div class="col"><button class="btn btn-dark w-100" value="8" id="8" onclick="onClickHandle(this)">8</button></div>
-                <div class="col"><button class="btn btn-dark w-100" value="9" id="9" onclick="onClickHandle(this)">9</button></div>
-                <div class="col"><button class="btn btn-dark w-100" value="/" id="/" onclick="onClickHandle(this)">/</button></div>
-                <div class="col"><button class="btn btn-dark w-100" value="4" id="4" onclick="onClickHandle(this)">4</button></div>
-                <div class="col"><button class="btn btn-dark w-100" value="5" id="5" onclick="onClickHandle(this)">5</button></div>
-                <div class="col"><button class="btn btn-dark w-100" value="6" id="6" onclick="onClickHandle(this)">6</button></div>
-                <div class="col"><button class="btn btn-dark w-100" value="x" id="x" onclick="onClickHandle(this)">x</button></div>
-                <div class="col"><button class="btn btn-dark w-100" value="1" id="1" onclick="onClickHandle(this)">1</button></div>
-                <div class="col"><button class="btn btn-dark w-100" value="2" id="2" onclick="onClickHandle(this)">2</button></div>
-                <div class="col"><button class="btn btn-dark w-100" value="3" id="3" onclick="onClickHandle(this)">3</button></div>
-                <div class="col"><button class="btn btn-dark w-100" value="-" id="-" onclick="onClickHandle(this)">-</button></div>
-                <div class="col"><button class="btn btn-dark w-100" value="0" id="0" onclick="onClickHandle(this)">0</button></div>
-                <div class="col"><button class="btn btn-dark w-100" value="." id="." onclick="onClickHandle(this)">.</button></div>
-                <div class="col"><button class="btn btn-dark w-100" value="+" id="+" onclick="onClickHandle(this)">+</button></div>
+            <div id="result" class="h1 text-white heigh-50 text-end">0 </div>
+            <div class="row g-1">
+                <div class="col col-3"><button class="btn btn-dark w-100" value="7" id="7" onclick="onClickHandle(this)">7</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value="8" id="8" onclick="onClickHandle(this)">8</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value="9" id="9" onclick="onClickHandle(this)">9</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value="/" id="/" onclick="onClickHandle(this)">/</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value="4" id="4" onclick="onClickHandle(this)">4</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value="5" id="5" onclick="onClickHandle(this)">5</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value="6" id="6" onclick="onClickHandle(this)">6</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value="x" id="x" onclick="onClickHandle(this)">x</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value="1" id="1" onclick="onClickHandle(this)">1</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value="2" id="2" onclick="onClickHandle(this)">2</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value="3" id="3" onclick="onClickHandle(this)">3</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value="-" id="-" onclick="onClickHandle(this)">-</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value="0" id="0" onclick="onClickHandle(this)">0</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value="." id="." onclick="onClickHandle(this)">.</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value="+" id="+" onclick="onClickHandle(this)">+</button></div>
+                <div class="col col-3"><button class="btn btn-light w-100" value="AC" id="AC" onclick="clearHandle()">AC</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value="(" id="open" onclick="onClickHandle(this)">(</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value=")" id="close" onclick="onClickHandle(this)">)</button></div>
+                <div class="col col-3"><button class="btn btn-dark w-100" value="del" id="delete" onclick="deleteHandle(this)">DEL</button></div>
                 <div class="col"><button class="btn btn-warning w-100" value="=" id="=" onclick="getResultHandle(this)">=</button></div>
             </div>
         </div>
