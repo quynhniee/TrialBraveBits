@@ -10,7 +10,8 @@ import TextInput from "./TextInput";
 import Dropdown from "./Dropdown";
 
 const ListGroup = () => {
-  const [todoList, setTodoList] = useState([]);
+  const list = JSON.parse(localStorage.getItem("todoList"));
+  const [todoList, setTodoList] = useState(list ? list : []);
   const [filterData, setFilterData] = useState(todoList);
   const [filterType, setFilterType] = useState("All");
   const [searchText, setSearchText] = useState("");
@@ -24,23 +25,16 @@ const ListGroup = () => {
       deleted: false,
     };
     setTodoList([newData, ...todoList]);
-    console.log(input);
     setFilterType("All");
   };
 
-  const updateData = useCallback(
-    (data) => {
-      setTodoList(todoList.map((ex) => (ex.id === data.id ? data : ex)));
-    },
-    [todoList]
-  );
+  const updateData = (data) => {
+    setTodoList(todoList.map((ex) => (ex.id === data.id ? data : ex)));
+  };
 
-  const deleteData = useCallback(
-    (data) => {
-      setTodoList(todoList.filter((ex) => ex !== data));
-    },
-    [todoList]
-  );
+  const deleteData = (data) => {
+    setTodoList(todoList.filter((ex) => ex.id !== data.id));
+  };
 
   const getFilter = useCallback(
     (filter) => {
@@ -73,6 +67,10 @@ const ListGroup = () => {
     setFilterData(todoList);
     getFilter(filterType);
   }, [todoList, filterType, getFilter]);
+
+  useEffect(() => {
+    localStorage.setItem("todoList", JSON.stringify(todoList));
+  }, [todoList]);
 
   return (
     <MDBListGroup className="" light>

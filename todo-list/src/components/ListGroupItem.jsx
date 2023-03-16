@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { MDBListGroupItem, MDBIcon, MDBBtn } from "mdb-react-ui-kit";
 
 const ListGroupItem = ({ data, updateData, deleteData }) => {
@@ -11,15 +11,12 @@ const ListGroupItem = ({ data, updateData, deleteData }) => {
   const handleOnMouseOver = () => {
     setIsHovering(true);
   };
-  const handleOonMouseOut = () => {
+  const handleOnMouseOut = () => {
     setIsHovering(false);
   };
   const deleteHandle = () => {
     deleteData(newData);
   };
-  useEffect(() => {
-    localStorage.setItem(newData.id, JSON.stringify(newData));
-  }, [newData]);
 
   return (
     <MDBListGroupItem
@@ -29,7 +26,7 @@ const ListGroupItem = ({ data, updateData, deleteData }) => {
       color={newData.completed ? "success" : ""}
       className="px-3 d-flex justify-content-between align-items-center"
       onMouseOver={handleOnMouseOver}
-      onMouseOut={handleOonMouseOut}
+      onMouseOut={handleOnMouseOut}
     >
       <span
         className={
