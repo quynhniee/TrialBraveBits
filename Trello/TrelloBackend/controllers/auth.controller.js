@@ -1,7 +1,6 @@
 require("dotenv/config");
 
 const User = require("../models/user");
-const Item = require("../models/item");
 const List = require("../models/list");
 const jwt = require("jsonwebtoken");
 
@@ -29,17 +28,17 @@ exports.signup = async (req, res, next) => {
       password: password,
     });
 
-    const newLists = await Item.create([
+    const newLists = await List.create([
       {
-        content: "Cần làm",
+        title: "Cần làm",
         userId: newUser._id,
       },
       {
-        content: "Đang làm",
+        title: "Đang làm",
         userId: newUser._id,
       },
       {
-        content: "Đã xong",
+        title: "Đã xong",
         userId: newUser._id,
       },
     ]);
