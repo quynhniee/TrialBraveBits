@@ -1,20 +1,25 @@
-import React, { useState, useCallback, useEffect } from "react";
-import {
-  MDBIcon,
-  MDBInputGroup,
-  MDBListGroup,
-  MDBListGroupItem,
-} from "mdb-react-ui-kit";
+import React, { useState, useEffect, useRef } from "react";
 import ListGroupItem from "./ListGroupItem";
 import TextInput from "./TextInput";
-import Dropdown from "./Dropdown";
+import styled from "styled-components";
+
+const StyledListGroup = styled.ul`
+  display: flex;
+  flex-direction: column;
+  padding-left: 0;
+  margin-bottom: 0;
+  border-radius: 0.5rem;
+  & > :not(:last-child),
+  & > :not(:first-child) {
+    border: 2px solid #f5f5f5;
+    border-width: 0 0 2px;
+  }
+`;
 
 const ListGroup = () => {
   const list = JSON.parse(localStorage.getItem("todoList"));
   const [todoList, setTodoList] = useState(list ? list : []);
-  const [filterData, setFilterData] = useState(todoList);
-  const [filterType, setFilterType] = useState("All");
-  const [searchText, setSearchText] = useState("");
+  var draggedItem = useRef();
 
   const getInput = (input) => {
     if (input.trim() === "") return;
@@ -25,7 +30,6 @@ const ListGroup = () => {
       deleted: false,
     };
     setTodoList([newData, ...todoList]);
-    setFilterType("All");
   };
 
   const updateData = (data) => {
@@ -36,73 +40,44 @@ const ListGroup = () => {
     setTodoList(todoList.filter((ex) => ex.id !== data.id));
   };
 
-  const getFilter = useCallback(
-    (filter) => {
-      setFilterType(filter);
-      switch (filter) {
-        case "Completed":
-          setFilterData(todoList.filter((ex) => ex.completed === true));
-          break;
-        case "In progress":
-          setFilterData(todoList.filter((ex) => ex.completed !== true));
-          break;
-        default:
-          setFilterData(todoList);
-          setFilterType("All");
-          break;
-      }
-    },
-    [todoList]
-  );
-
-  const searchHandle = () => {
-    setFilterData(
-      todoList.filter((ex) =>
-        new RegExp("^.*" + searchText + ".*$", "im").test(ex.content)
-      )
-    );
-  };
-
-  useEffect(() => {
-    setFilterData(todoList);
-    getFilter(filterType);
-  }, [todoList, filterType, getFilter]);
-
   useEffect(() => {
     localStorage.setItem("todoList", JSON.stringify(todoList));
   }, [todoList]);
 
+  const dragStartHandle = (e, index) => {
+    draggedItem.current = todoList[index];
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setDragImage(e.target, 20, 20);
+  };
+
+  const dragOverHandle = (e, index) => {
+    e.preventDefault();
+    const draggedOverItem = todoList[index];
+    if (draggedItem.current === draggedOverItem) return;
+    let items = todoList.filter((item) => item !== draggedItem.current);
+    items.splice(index, 0, draggedItem.current);
+    setTodoList(items);
+  };
+
+  const dragEndHandle = () => {
+    draggedItem.current = null;
+  };
+
   return (
-    <MDBListGroup className="" light>
+    <StyledListGroup>
       <TextInput getInput={getInput} />
-      {filterData.map((e) => (
+      {todoList.map((item, index) => (
         <ListGroupItem
-          data={e}
-          key={e.id}
+          onDragStart={(e) => dragStartHandle(e, index)}
+          onDragOver={(e) => dragOverHandle(e, index)}
+          onDragEnd={dragEndHandle}
+          data={item}
+          key={item.id}
           updateData={updateData}
           deleteData={deleteData}
         />
       ))}
-      <MDBListGroupItem
-        noBorders
-        className="d-flex position-sticky bottom-0"
-        style={{ zIndex: 3 }}
-      >
-        <MDBInputGroup
-          textBefore={[
-            <Dropdown getFilter={getFilter} />,
-            <MDBIcon fas icon="search" />,
-          ]}
-        >
-          <input
-            type="text"
-            className="form-control"
-            onChange={(e) => setSearchText(e.target.value)}
-            onKeyDown={(e) => (e.key === "Enter" ? searchHandle() : null)}
-          />
-        </MDBInputGroup>
-      </MDBListGroupItem>
-    </MDBListGroup>
+    </StyledListGroup>
   );
 };
 

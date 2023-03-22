@@ -1,67 +1,119 @@
 import React, { useState } from "react";
-import { MDBListGroupItem, MDBIcon, MDBBtn } from "mdb-react-ui-kit";
+import { useEffect } from "react";
+import styled from "styled-components";
+import Button, { IconButton } from "./Button";
+import Input from "./Input";
+import useClickOutside from "../hook/clickOutside";
 
-const ListGroupItem = ({ data, updateData, deleteData }) => {
+const StyledListGroupItem = styled(Button)`
+  background-color: "#fff";
+  color: "#4f4f4f";
+  padding: 1rem;
+  & button {
+    opacity: 0;
+    transition: 0.5s ease;
+  }
+  &:hover button {
+    opacity: 1;
+  }
+`;
+
+const ListGroupItem = ({
+  data,
+  updateData,
+  deleteData,
+  onDragStart,
+  onDragOver,
+  onDragEnd,
+}) => {
   const [newData, setNewData] = useState(data);
+  const [edit, setEdit] = useState(false);
+  const [content, setContent] = useState(newData.content);
   const checkHandle = () => {
     setNewData({ ...newData, completed: !newData.completed });
-    updateData({ ...newData, completed: !newData.completed });
   };
-  const [isHovering, setIsHovering] = useState(false);
-  const handleOnMouseOver = () => {
-    setIsHovering(true);
-  };
-  const handleOnMouseOut = () => {
-    setIsHovering(false);
-  };
+
   const deleteHandle = () => {
     deleteData(newData);
   };
 
+  const editHandle = () => {
+    setEdit(!edit);
+  };
+
+  useEffect(() => {
+    updateData(newData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newData]);
+
   return (
-    <MDBListGroupItem
-      tag="button"
-      action
-      type="button"
-      color={newData.completed ? "success" : ""}
+    <StyledListGroupItem
+      ref={useClickOutside(() => {
+        setContent(newData.content);
+        setEdit(false);
+      })}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragEnd={onDragEnd}
+      draggable
+      color={newData.completed ? "success" : "light"}
       className="px-3 d-flex justify-content-between align-items-center"
-      onMouseOver={handleOnMouseOver}
-      onMouseOut={handleOnMouseOut}
     >
-      <span
-        className={
-          newData.completed
-            ? "text-break text-decoration-line-through"
-            : "text-break"
-        }
-      >
-        {newData.content}
-      </span>
-      <div>
-        {!(isHovering && !newData.completed) ? null : (
-          <MDBBtn
-            tag="a"
-            color="none"
-            rippleColor="success"
-            onClick={checkHandle}
-            className="mx-2"
-          >
-            <MDBIcon icon="check" color="success" size="md" />
-          </MDBBtn>
+      {!edit ? (
+        <span
+          className={
+            newData.completed
+              ? "text-break text-decoration-line-through"
+              : "text-break"
+          }
+        >
+          {newData.content}
+        </span>
+      ) : (
+        <Input
+          autoFocus={true}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              setNewData({ ...newData, content: content });
+              setEdit(false);
+            }
+          }}
+          style={{
+            borderBottom: " 1px #000 dotted",
+            background: "transparent",
+          }}
+        />
+      )}
+
+      <div className="d-flex flex-row gap-2">
+        {!edit && (
+          <IconButton as="a" href="#" variant="outline" onClick={editHandle}>
+            <span className="material-icons">edit</span>
+          </IconButton>
         )}
-        {isHovering && (
-          <MDBBtn
-            tag="a"
-            color="none"
-            rippleColor="danger"
-            onClick={deleteHandle}
-            className="mx-2"
-          >
-            <MDBIcon icon="times" color="danger" />
-          </MDBBtn>
-        )}
+        <IconButton
+          as="a"
+          href="#"
+          variant="outline"
+          // color="success"
+          onClick={checkHandle}
+        >
+          <span className="material-icons">done</span>
+        </IconButton>
+
+        <IconButton
+          as="a"
+          href="#"
+          variant="outline"
+          color="error"
+          onClick={deleteHandle}
+        >
+          <span className="material-icons">clear</span>
+        </IconButton>
       </div>
-    </MDBListGroupItem>
+    </StyledListGroupItem>
   );
 };
 
