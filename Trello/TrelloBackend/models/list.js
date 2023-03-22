@@ -5,12 +5,10 @@ const listSchema = new Schema({
     type: String,
     required: true,
   },
-  items: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Item",
-    },
-  ],
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+  },
 });
 
 module.exports = mongoose.model("List", listSchema);
