@@ -1,18 +1,5 @@
-const express = require("express");
 const Item = require("../models/item");
-
-// Get list items
-exports.get = async (req, res, next) => {
-  try {
-    const listId = req.params.id;
-    const items = await Item.find({ listId });
-
-    res.status(200).json(items);
-  } catch (error) {
-    error.statusCode = error.statusCode || 500;
-    next(error);
-  }
-};
+const List = require('../models/list')
 
 // Update item by id
 exports.update = async (req, res, next) => {
@@ -34,10 +21,16 @@ exports.add = async (req, res, next) => {
   try {
     const listId = req.params.id;
     const item = req.body;
-
+    
     const newItem = await Item.create({ ...item, listId });
+    const list = await List.findById(listId);
 
-    res.status(200).json(newItem);
+    if (list) {
+      list.items.push(newItem);
+      list.save();
+      res.status(200).json(newItem);
+    }
+
   } catch (error) {
     error.statusCode = error.statusCode || 500;
     next(error);

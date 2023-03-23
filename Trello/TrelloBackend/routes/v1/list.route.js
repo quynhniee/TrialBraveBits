@@ -1,15 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const listController = require("../../controllers/list.controller");
-const isAuth = require("../../middlewares/is-auth");
 
 // Get all list
-router.get("/", isAuth, listController.getAll);
+router.get("/", listController.getAll);
 
 // Get list by id
-router.get("/:id", isAuth, listController.get);
+router.get("/:id", listController.get);
 
 // Update list by id
-router.put("/:id", isAuth, listController.update);
+router.put("/:id", listController.update);
+
+// Create list
+router.post('/', listController.add)
 
 module.exports = router;
