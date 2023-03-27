@@ -1,5 +1,5 @@
 const Item = require("../models/item");
-const List = require('../models/list')
+const List = require("../models/list");
 
 // Update item by id
 exports.update = async (req, res, next) => {
@@ -21,7 +21,7 @@ exports.add = async (req, res, next) => {
   try {
     const listId = req.params.id;
     const item = req.body;
-    
+
     const newItem = await Item.create({ ...item, listId });
     const list = await List.findById(listId);
 
@@ -30,7 +30,35 @@ exports.add = async (req, res, next) => {
       list.save();
       res.status(200).json(newItem);
     }
+  } catch (error) {
+    error.statusCode = error.statusCode || 500;
+    next(error);
+  }
+};
 
+// Remove Item
+exports.remove = async (req, res, next) => {
+  try {
+    const listId = req.params.listId;
+    const id = req.params.id;
+
+    const item = await Item.findOneAndRemove({ _id: id }).exec();
+
+    if (item) {
+      await List.findOneAndUpdate(
+        { _id: listId },
+        { $pull: { children: { _id: id } } },
+        { new: true }
+      )
+        .then((parent) => {
+          console.log("Child removed successfully");
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
+
+    res.status(200).json("Delete item!");
   } catch (error) {
     error.statusCode = error.statusCode || 500;
     next(error);
