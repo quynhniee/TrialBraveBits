@@ -12,6 +12,9 @@ router.get("/:id", listController.get);
 router.put("/:id", listController.update);
 
 // Create list
-router.post('/', listController.add)
+router.post("/", listController.add);
+
+// Delete list
+router.delete("/:id", listController.delete);
 
 module.exports = router;
