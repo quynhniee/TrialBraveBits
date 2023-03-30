@@ -5,6 +5,10 @@ const itemSchema = new Schema({
     type: String,
     required: true,
   },
+  rank: {
+    type: Schema.Types.Number,
+    require: true,
+  },
   listId: Schema.Types.ObjectId,
 });
 

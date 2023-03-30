@@ -1,10 +1,11 @@
 const List = require("../models/list");
-const Item = require("../models/item");
 
 // Get all list
 exports.getAll = async (req, res, next) => {
   try {
-    const allList = await List.find().sort({ rank: 1 }).populate("items");
+    const allList = await List.find()
+      .sort({ rank: 1 })
+      .populate({ path: "items", options: { sort: { rank: 1 } } });
 
     res.status(200).json(allList);
   } catch (error) {
@@ -17,7 +18,10 @@ exports.getAll = async (req, res, next) => {
 exports.get = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const list = await List.findById(id).populate("items");
+    const list = await List.findById(id).populate({
+      path: "items",
+      options: { sort: { rank: 1 } },
+    });
 
     res.status(200).json(list);
   } catch (error) {
@@ -30,7 +34,6 @@ exports.get = async (req, res, next) => {
 exports.add = async (req, res, next) => {
   try {
     const maxIndex = await List.find().sort({ rank: -1 }).limit(1);
-    console.log(maxIndex, maxIndex[0]?.rank);
     const rank = maxIndex[0]?.rank + 1 || 1;
     const list = { ...req.body, rank };
     const newList = await List.create(list);

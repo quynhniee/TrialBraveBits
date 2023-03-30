@@ -22,10 +22,13 @@ exports.add = async (req, res, next) => {
     const listId = req.params.id;
     const item = req.body;
 
-    const newItem = await Item.create({ ...item, listId });
     const list = await List.findById(listId);
 
     if (list) {
+      const maxIndex = await Item.find({ listId }).sort({ rank: -1 }).limit(1);
+      const rank = maxIndex[0]?.rank + 1 || 1;
+
+      const newItem = await Item.create({ ...item, rank, listId });
       list.items.push(newItem);
       list.save();
       res.status(200).json(newItem);
