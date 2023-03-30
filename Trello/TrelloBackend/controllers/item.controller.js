@@ -29,8 +29,7 @@ exports.add = async (req, res, next) => {
       const rank = maxIndex[0]?.rank + 1 || 1;
 
       const newItem = await Item.create({ ...item, rank, listId });
-      list.items.push(newItem);
-      list.save();
+
       res.status(200).json(newItem);
     }
   } catch (error) {
@@ -42,24 +41,11 @@ exports.add = async (req, res, next) => {
 // Remove Item
 exports.remove = async (req, res, next) => {
   try {
-    const listId = req.params.listId;
     const id = req.params.id;
 
-    const item = await Item.findOneAndRemove({ _id: id }).exec();
+    await Item.findOneAndRemove({ _id: id }).exec();
 
-    if (item) {
-      await List.findOneAndUpdate(
-        { _id: listId },
-        { $pull: { children: { _id: id } } },
-        { new: true }
-      )
-        .then((parent) => {
-          console.log("Child removed successfully");
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    }
+    console.log("Child removed successfully");
 
     res.status(200).json("Delete item!");
   } catch (error) {
