@@ -1,4 +1,5 @@
 const List = require("../models/list");
+const Item = require("../models/item");
 
 // Get all list
 exports.getAll = async (req, res, next) => {
@@ -66,6 +67,8 @@ exports.delete = async (req, res, next) => {
     const listId = req.params.id;
 
     await List.findByIdAndRemove(listId);
+
+    await Item.deleteMany({ listId });
 
     res.status(200).json("Delete successfully");
   } catch (error) {
