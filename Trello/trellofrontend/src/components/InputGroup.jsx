@@ -28,6 +28,7 @@ const InputGroup = ({ submitAction, type, variant }) => {
     width: "300px",
     padding: " 5px",
   };
+
   const [expand, setExpand] = useState(false);
   const inputRef = useRef();
 

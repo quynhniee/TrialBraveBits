@@ -8,38 +8,30 @@ body {
   color: #172b4d;
   background-color: rgb(34, 140, 213);
   white-space: nowrap;
+
 }
 
-
-#root {
-  min-height: 100vh;
-  background-image: url(https://d2k1ftgv7pobq7.cloudfront.net/images/backgrounds/gradients/snow.svg);
-}
 
 .App {
-  display: flex;
-  align-items: flex-start;
-}
-
-.canvas {
   background: linear-gradient(to bottom, #0000003d, #0000 180px, #0000);
-  bottom: 0;
-  left: 0;
-  margin-bottom: 8px;
-  overflow-y: hidden;
-  padding-bottom: 8px;
   position: absolute;
-  right: 0;
   top: 0;
-  -webkit-user-select: none;
-  user-select: none;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* width: fit-content;
+  height: 100%; */
 }
 
 .list-wrapper {
   padding: 20px;
-  width: fit-content;
+  gap: 10px;
+  height: 100%;
   display: flex;
-  align-items: flex-start;
+  flex-direction: row;
+  overflow-y: hidden;
+  overflow-x: auto;
+
 }
 
 .dragged-item {

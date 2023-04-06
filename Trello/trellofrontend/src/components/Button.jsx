@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 export const ItemTag = styled.div`
   background-color: #fff;
-  padding: 5px 5px 5px 10px;
+  padding: 7px 7px 7px 10px;
   box-shadow: 0 1px 0 #091e4240;
   border: none;
   border-radius: 5px;

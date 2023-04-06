@@ -26,6 +26,7 @@ function App() {
   let draggedList = undefined;
   let draggedItem = undefined;
   const listRefs = useRef([]);
+  let rect = undefined;
 
   // move clone element
   const moveHandle = (e) => {
@@ -35,7 +36,7 @@ function App() {
   };
 
   // List Drag Handle
-  const onDragStart = (e, position, list) => {
+  const onDragStart = (e, position, list, height) => {
     e.stopPropagation();
 
     const parentNode = e.target.parentNode;
@@ -53,10 +54,11 @@ function App() {
 
     currentRank.current = list.rank;
     itemSelected.current = list._id;
+    currentList = list;
 
     setTimeout(() => {
       moveHandle(e);
-      parentNode.style = "background-color: #00000030";
+      parentNode.style = `background-color: #00000030;border-radius: 5px; height: ${height}px`;
       e.target.style = "visibility: hidden";
     }, 0);
   };
@@ -72,14 +74,15 @@ function App() {
     e.preventDefault();
     dragOverList.current = position;
     newRank.current = list.rank;
-    newList = list._id;
+    newList = list;
   };
 
-  const onDragEnd = (e) => {
+  const onDragEnd = (e, height) => {
+    console.log("end");
     // remove clone element
     document.body.querySelector(".dragged-item").remove();
     draggedList = undefined;
-    e.target.parentNode.style = "background-color: #ebecf0;";
+    e.target.parentNode.style = `background-color: #ebecf0; border-radius: 5px; height: ${height}px`;
     e.target.style = "visibility: none";
 
     if (newRank !== null && dragOverList.current !== null) {
@@ -117,6 +120,7 @@ function App() {
     draggedItem.classList.add("dragged-item");
     draggedItem.style.transform = "rotate(5deg)";
     draggedItem.style.width = "280px";
+    draggedItem.setAttribute("type", "item");
     draggedItem.append(e.target.cloneNode(true));
     document.body.append(draggedItem);
 
@@ -137,6 +141,21 @@ function App() {
     dragOverItem.current = position;
     newItemRank.current = item.rank;
     newList = list;
+    rect = e.target.getBoundingClientRect();
+    rect.center = rect.top + (rect.bottom - rect.top) / 2;
+
+    const y = e.clientY;
+
+    if (y < rect.center) {
+      if (!newList || newList?._id === currentList?._id)
+        if (dragItem.current < dragOverItem.current) dragOverItem.current -= 1;
+      console.log("up");
+    } else {
+      if (newList?._id !== currentList?._id) dragOverItem.current += 1;
+      if (!newList || newList?._id === currentList?._id)
+        if (dragItem.current > dragOverItem.current) dragOverItem.current += 1;
+      console.log("down");
+    }
   };
 
   const onDragEndItem = (e, item, list) => {
@@ -146,38 +165,52 @@ function App() {
     draggedItem = undefined;
     const currentListIndex = lists.findIndex((b) => b._id === currentList._id);
     const newListIndex = lists.findIndex((b) => b._id === newList._id);
-    const currentListItems = currentList.items;
+    let currentListItems = currentList.items;
 
     if (currentList._id === newList._id) {
       currentListItems.splice(dragItem.current, 1);
       currentListItems.splice(dragOverItem.current, 0, item);
       // update item rank
-      currentListItems.forEach((item, index) =>
-        updateItem({ rank: index }, item._id)
+      currentListItems = currentListItems.map((item, index) => ({
+        ...item,
+        rank: index + 1,
+      }));
+      currentListItems.forEach((item) =>
+        updateItem({ rank: item.rank }, item._id)
       );
+      listRefs.current[currentListIndex].updateItems(currentListItems);
     } else if (newList.items !== undefined) {
       updateItem({ listId: newList._id }, item._id).then((resp) =>
         console.log(resp.data)
       );
 
       currentListItems.splice(dragItem.current, 1);
+
+      let newListItems = newList.items;
+      console.log(newListItems);
+      newListItems.splice(dragOverItem.current, 0, item);
+
       // update item rank of current list
+      currentListItems = currentListItems.map((item, index) => ({
+        ...item,
+        rank: index + 1,
+      }));
       currentListItems.forEach((item, index) =>
         updateItem({ rank: index }, item._id)
       );
+      listRefs.current[currentListIndex].updateItems(currentListItems);
 
-      const newListItems = newList.items;
-      console.log(newListItems);
-      newListItems.splice(dragOverItem.current, 0, item);
       // update item rank of drop list
+      newListItems = newListItems.map((item, index) => ({
+        ...item,
+        rank: index + 1,
+      }));
       newListItems.forEach((item, index) =>
         updateItem({ rank: index }, item._id)
       );
 
-      listRefs.current[newListIndex].getData();
+      listRefs.current[newListIndex].updateItems(newListItems);
     }
-
-    listRefs.current[currentListIndex].getData();
 
     dragItem.current = null;
     dragOverItem.current = null;
@@ -202,27 +235,25 @@ function App() {
 
   return (
     <div className="App">
-      <div className="canvas">
-        <div className="list-wrapper">
-          {lists.map((list, index) => (
-            <Card
-              setLists={setLists}
-              lists={lists}
-              key={list._id}
-              index={index}
-              list={list}
-              onDragStart={onDragStart}
-              onDrag={onDrag}
-              onDragOver={onDragOver}
-              onDragEnd={onDragEnd}
-              onDragStartItem={onDragStartItem}
-              onDragOverItem={onDragOverItem}
-              onDragEndItem={onDragEndItem}
-              ref={(list) => (listRefs.current[index] = list)}
-            />
-          ))}
-          <InputGroup type="list" variant="white" submitAction={submitAction} />
-        </div>
+      <div className="list-wrapper">
+        {lists.map((list, index) => (
+          <Card
+            setLists={setLists}
+            lists={lists}
+            key={list._id}
+            index={index}
+            list={list}
+            onDragStart={onDragStart}
+            onDrag={onDrag}
+            onDragOver={onDragOver}
+            onDragEnd={onDragEnd}
+            onDragStartItem={onDragStartItem}
+            onDragOverItem={onDragOverItem}
+            onDragEndItem={onDragEndItem}
+            ref={(list) => (listRefs.current[index] = list)}
+          />
+        ))}
+        <InputGroup type="list" variant="white" submitAction={submitAction} />
       </div>
     </div>
   );

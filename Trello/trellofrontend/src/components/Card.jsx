@@ -1,7 +1,6 @@
-import React, { useImperativeHandle, useRef, useState } from "react";
+import React, { useImperativeHandle, useState } from "react";
 import styled from "styled-components";
 import { createItem } from "../api/item";
-import { getAllList, getList } from "../api/list";
 import CardHeader from "./CardHeader";
 import CardItem from "./CardItem";
 import InputGroup from "./InputGroup";
@@ -11,18 +10,21 @@ export const StyledCard = styled.div`
   background-color: #ebecf0;
   width: 300px;
   height: fit-content;
-  display: inline-block;
-  margin: 0 10px 0 0;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
   top: 0;
   flex-shrink: 0;
 `;
 
 const CardBody = styled.div`
-  padding: 0 10px 10px 10px;
+  padding: 5px 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
   vertical-align: top;
+  min-height: 0;
+  overflow-y: auto;
 `;
 
 const Card = React.forwardRef(
@@ -43,6 +45,7 @@ const Card = React.forwardRef(
     ref
   ) => {
     const [items, setItems] = useState(list.items);
+    let height = undefined;
 
     const removeItemHandle = (id) => {
       setItems(items.filter((item) => item._id !== id));
@@ -55,23 +58,23 @@ const Card = React.forwardRef(
     };
 
     useImperativeHandle(ref, () => ({
-      getData() {
-        console.log(list);
-        getList(list._id)
-          .then((resp) => resp.data)
-          .then((data) => setItems(data.items))
-          .catch((error) => console.log(error));
+      updateItems(items) {
+        console.log(items);
+        setItems(items);
       },
     }));
     return (
       <>
-        <StyledCard>
-          <div
+        <div>
+          <StyledCard
             draggable
             onDrag={(e) => onDrag(e)}
-            onDragStart={(e) => onDragStart(e, index, list)}
+            onDragStart={(e) => onDragStart(e, index, list, height)}
             onDragOver={(e) => onDragOver(e, index, list)}
-            onDragEnd={(e) => onDragEnd(e)}
+            onDragEnd={(e) => onDragEnd(e, height)}
+            onMouseDown={(e) => {
+              height = e.currentTarget.offsetHeight;
+            }}
           >
             <CardHeader list={list} lists={lists} setLists={setLists} />
             <CardBody>
@@ -87,14 +90,16 @@ const Card = React.forwardRef(
                   onDragEnd={onDragEndItem}
                 />
               ))}
+            </CardBody>
+            <div style={{ padding: "10px" }}>
               <InputGroup
                 submitAction={submitAction}
                 type="item"
                 variant="gray"
               />
-            </CardBody>
-          </div>
-        </StyledCard>
+            </div>
+          </StyledCard>
+        </div>
       </>
     );
   }

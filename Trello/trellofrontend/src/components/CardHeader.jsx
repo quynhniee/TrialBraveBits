@@ -5,7 +5,7 @@ import { updateList } from "../api/list";
 import CardMenu from "./CardMenu";
 
 const CardHeaderStyle = styled.div`
-  padding: 10px 15px;
+  padding: 10px 15px 5px 15px;
   font-weight: bold;
   display: flex;
   justify-content: space-between;
