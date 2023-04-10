@@ -28,7 +28,7 @@ const request = {
       const response = await axios.get(
         isEmptyQuery ? url : url + "?" + getParams(query)
       );
-      return response;
+      return response.data;
     } catch (error) {
       return error.response;
     }
@@ -37,7 +37,7 @@ const request = {
   post: async (url, body) => {
     try {
       const response = await axios.post(url, body);
-      return response;
+      return response.data;
     } catch (error) {
       return error.response;
     }
@@ -46,7 +46,7 @@ const request = {
   put: async (url, body) => {
     try {
       const response = await axios.put(url, body);
-      return response;
+      return response.data;
     } catch (error) {
       return error.response;
     }
@@ -55,7 +55,7 @@ const request = {
   delete: async (url) => {
     try {
       const response = await axios.delete(url);
-      return response;
+      return response.data;
     } catch (error) {
       return error.response;
     }

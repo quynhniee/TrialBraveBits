@@ -2,8 +2,7 @@ import request from "./request";
 
 const Articles = {
   // Get recent articles globally
-  getAll: (query) =>
-    request.get("/articles", query).then((response) => response.data),
+  getAll: (query) => request.get("/articles", query),
 
   // Get recent articles from users you follow
   feed: (page) => request.get("/articles/feed", { page }),

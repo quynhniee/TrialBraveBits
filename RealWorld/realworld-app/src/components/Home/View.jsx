@@ -6,12 +6,12 @@ import { changeTab } from "../../reducers/articleListSlice";
 const YourFeed = () => {
   const dispatch = useDispatch();
   const currentTab = useSelector((state) => state.articleList.tab);
-  // changeTab('')
   const isActiveTab = currentTab === "feed";
 
   const onClickHandle = () => {
     changeTab("feed", dispatch);
   };
+
   return (
     <li className="nav-item">
       <button

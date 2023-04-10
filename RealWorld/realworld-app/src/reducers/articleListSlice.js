@@ -8,7 +8,7 @@ export const changeTab = (tab, dispatch) => {
 
 export const getAllArticles = createAsyncThunk(
   "articleList/getAll",
-  ({ page, tag, author, favorited } = {}, thunkApi) => {
+  async ({ page, tag, author, favorited } = {}, thunkApi) => {
     const articleList = thunkApi.getState().articleList;
     return articleList.tab === "feed"
       ? api.Articles.feed(page)

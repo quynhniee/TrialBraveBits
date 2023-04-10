@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import TagList from "./TagList";
 
 const ArticlePreview = ({ article }) => {
   const clickHandle = () => {};
@@ -32,6 +33,7 @@ const ArticlePreview = ({ article }) => {
         <h1>{article.title}</h1>
         <p>{article.description}</p>
         <span>Read more...</span>
+        <TagList tags={article.tagList} />
       </Link>
     </div>
   );

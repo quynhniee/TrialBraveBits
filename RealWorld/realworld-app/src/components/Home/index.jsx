@@ -1,6 +1,7 @@
 import React from "react";
 import Banner from "./Banner";
 import View from "./View";
+import SlideBar from "../../features/tags/SlideBar";
 
 const Home = () => {
   return (
@@ -9,6 +10,8 @@ const Home = () => {
       <div className="container page">
         <div className="row">
           <View />
+
+          <SlideBar />
         </div>
       </div>
     </div>
