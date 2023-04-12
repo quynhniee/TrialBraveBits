@@ -1,7 +1,7 @@
 import React from "react";
 import Banner from "./Banner";
 import View from "./View";
-import SlideBar from "../../features/tags/SlideBar";
+import SlideBar from "../../components/SlideBar";
 
 const Home = () => {
   return (

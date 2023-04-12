@@ -8,12 +8,12 @@ const ArticlePreview = ({ article }) => {
   return (
     <div className="article-preview">
       <div className="article-meta">
-        <Link to={`/@${article.author.username}`}>
+        <Link to={`/user/${article.author.username}`}>
           <img src={article.author.image} alt={article.author.username} />
         </Link>
 
         <div className="info">
-          <Link className="author" to={`@${article.author.username}`}>
+          <Link className="author" to={`/user/${article.author.username}`}>
             {article.author.username}
           </Link>
           <span className="date">

@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import ArticlePreview from "./ArticlePreview";
-import { useSelector } from "react-redux";
+import Context from "../app/context";
+import Pagination from "./Pagination";
 
 const ArticleList = () => {
-  const articles = useSelector((state) => state.articleList.articles);
+  const { articleList } = useContext(Context);
+  const articles = articleList.articles;
 
   if (articles === undefined || articles.length === 0)
     return <div className="article-preview"></div>;
@@ -13,6 +15,7 @@ const ArticleList = () => {
       {articles.map((article) => (
         <ArticlePreview key={article.slug} article={article} />
       ))}
+      <Pagination />
     </>
   );
 };

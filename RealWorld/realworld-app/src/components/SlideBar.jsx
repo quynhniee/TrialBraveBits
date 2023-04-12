@@ -1,18 +1,15 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getAllArticles } from "../../reducers/articleListSlice";
-import { getAllTag } from "./tagsSlice";
+import React, { useContext, useEffect } from "react";
+import Context from "../app/context";
+import Tags from "../api/Tags";
 
 const SlideBar = () => {
-  const dispatch = useDispatch();
-  const tags = useSelector((state) => state.tags.tags);
-
+  const { getAllArticles, tags, setTags } = useContext(Context);
   const onClickHandle = (tag) => {
-    dispatch(getAllArticles({ tag }));
+    getAllArticles({ tag, page: 0 });
   };
 
   useEffect(() => {
-    dispatch(getAllTag());
+    Tags.getAll().then((resp) => setTags(resp.tags));
   }, []);
 
   return (
@@ -26,7 +23,7 @@ const SlideBar = () => {
               type="button"
               className="tag-pill tag-default"
               key={tag}
-              onClick={onClickHandle}
+              onClick={() => onClickHandle(tag)}
             >
               {tag}
             </button>

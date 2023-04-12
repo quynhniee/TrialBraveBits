@@ -1,10 +1,12 @@
 import { Suspense, lazy } from "react";
 import "./App.css";
-import Home from "./components/Home";
 import { Route, Routes } from "react-router-dom";
 import Header from "./components/Header";
+import Home from "./views/Home";
 
-const AuthScreen = lazy(() => import("./features/auth/AuthScreen"));
+const AuthScreen = lazy(() => import("./views/Auth"));
+const Article = lazy(() => import("./views/Article"));
+const Profile = lazy(() => import("./views/Profile"));
 
 function App() {
   return (
@@ -15,15 +17,8 @@ function App() {
           <Route exact path="/" element={<Home />} />
           <Route path="/login" element={<AuthScreen />} />
           <Route path="/register" element={<AuthScreen isRegister />} />
-          {/* <Route path="/editor/:slug" element={<Editor />} />
-    <Route path="/editor" element={<Editor />} />
-    <Route path="/article/:slug" element={<Article />} />
-    <Route path="/settings" element={<SettingsScreen />} />
-    <Route
-      path="/@:username/favorites"
-      element={<Profile isFavoritePage />}
-    />
-    <Route path="/@:username" element={<Profile />} /> */}
+          <Route path="/article/:slug" element={<Article />} />
+          <Route path="/user/:username" element={<Profile />} />
         </Routes>
       </Suspense>
     </>

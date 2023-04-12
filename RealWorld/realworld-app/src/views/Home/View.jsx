@@ -1,17 +1,19 @@
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import ArticleList from "../ArticleList";
-import { changeTab } from "../../reducers/articleListSlice";
+import React, { useContext } from "react";
+import ArticleList from "../../components/ArticleList";
+import Context from "../../app/context";
+import { AuthContext } from "../../features/auth";
 
 const YourFeed = () => {
-  const dispatch = useDispatch();
-  const currentTab = useSelector((state) => state.articleList.tab);
+  const { articleList, changeTab } = useContext(Context);
+  const isAuthenticated = useContext(AuthContext);
+  const currentTab = articleList.tab;
   const isActiveTab = currentTab === "feed";
 
   const onClickHandle = () => {
-    changeTab("feed", dispatch);
+    changeTab("feed");
   };
 
+  if (isAuthenticated !== true) return null;
   return (
     <li className="nav-item">
       <button
@@ -26,12 +28,12 @@ const YourFeed = () => {
 };
 
 const GlobalFeed = () => {
-  const dispatch = useDispatch();
-  const currentTab = useSelector((state) => state.articleList.tab);
+  const { articleList, changeTab } = useContext(Context);
+  const currentTab = articleList.tab;
   const isActiveTab = currentTab === "all";
 
   const onClickHandle = () => {
-    changeTab("all", dispatch);
+    changeTab("all");
   };
 
   return (
