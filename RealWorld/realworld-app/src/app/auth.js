@@ -11,8 +11,9 @@ export const AuthContext = createContext({
 const AuthProvider = ({ children }) => {
   const [isAuth, setIsAuth] = useState();
   const [currentUser, setCurrentUser] = useState({});
-  const isAuthor = (commentAuthor) => {
-    return commentAuthor.username === currentUser.username;
+  const isAuthor = (author) => {
+    if (isAuth !== true) return false;
+    return author.username === currentUser.username;
   };
   return (
     <AuthContext.Provider

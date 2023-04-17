@@ -12,7 +12,9 @@ const Article = () => {
   const { slug } = useParams();
 
   useEffect(() => {
-    api.Articles.get(slug).then((resp) => setArticle(resp.article));
+    api.Articles.get(slug).then((response) => {
+      setArticle(response.article);
+    });
   }, []);
 
   if (!article) {
