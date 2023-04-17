@@ -8,7 +8,7 @@ const ArticleList = () => {
   const articles = articleList.articles;
 
   if (articles === undefined || articles.length === 0)
-    return <div className="article-preview"></div>;
+    return <div className="article-preview">No articles are here... yet.</div>;
 
   return (
     <>

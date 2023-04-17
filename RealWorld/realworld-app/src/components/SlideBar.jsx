@@ -3,9 +3,12 @@ import Context from "../app/context";
 import Tags from "../api/Tags";
 
 const SlideBar = () => {
-  const { getAllArticles, tags, setTags } = useContext(Context);
+  const { tags, setTags, getArticlesByTag, setCurrentTag, setCurrentTab } =
+    useContext(Context);
   const onClickHandle = (tag) => {
-    getAllArticles({ tag, page: 0 });
+    setCurrentTag(tag);
+    setCurrentTab();
+    getArticlesByTag({ tag, page: 0 });
   };
 
   useEffect(() => {

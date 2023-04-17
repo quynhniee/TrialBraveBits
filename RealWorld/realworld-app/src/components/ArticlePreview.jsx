@@ -1,9 +1,17 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import TagList from "./TagList";
+import { AuthContext } from "../app/auth";
 
 const ArticlePreview = ({ article }) => {
-  const clickHandle = () => {};
+  const { isAuth } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const clickHandle = () => {
+    if (isAuth !== true) {
+      navigate("/login");
+      return;
+    }
+  };
 
   return (
     <div className="article-preview">

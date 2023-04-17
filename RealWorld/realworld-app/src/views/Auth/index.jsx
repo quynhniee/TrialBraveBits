@@ -6,6 +6,7 @@ const AuthScreen = ({ isRegister }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
+  const [errors, setErrors] = useState([]);
 
   const changeUsername = (event) => {
     setUsername(event.target.value);
@@ -17,6 +18,10 @@ const AuthScreen = ({ isRegister }) => {
 
   const changePassword = (event) => {
     setPassword(event.target.value);
+  };
+
+  const submitHandle = (e) => {
+    e.preventDefault();
   };
 
   return (
@@ -37,7 +42,7 @@ const AuthScreen = ({ isRegister }) => {
 
             <Errors errors={[]} />
 
-            <form>
+            <form onSubmit={submitHandle}>
               {isRegister ? (
                 <fieldset className="form-group">
                   <input

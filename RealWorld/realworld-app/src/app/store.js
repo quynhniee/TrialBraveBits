@@ -9,29 +9,38 @@ const Provider = ({ children }) => {
     articlesCount: 0,
     currentPage: 0,
     articlesPerPage: 10,
-    tab: undefined,
-    tag: undefined,
-    author: undefined,
     favorited: undefined,
   });
-  const [auth, setAuth] = useState();
+  const [currentTag, setCurrentTag] = useState();
+  const [currentTab, setCurrentTab] = useState();
+  const [currentAuthor, setCurrentAuthor] = useState();
   const [comments, setComments] = useState([]);
   const [profile, setProfile] = useState(undefined);
   const [tags, setTags] = useState([]);
 
-  const changeTab = (tab) => {
-    setArticleList({ ...articleList, tab });
-    getAllArticles();
+  const changeTab = async (tab) => {
+    setCurrentTab(tab);
+    setCurrentTag(undefined);
+    setCurrentAuthor(undefined);
+    const articles =
+      currentTab === "feed"
+        ? await api.Articles.feed(0)
+        : await api.Articles.getAll();
+    setArticleList((prev) => ({
+      ...prev,
+      ...articles,
+      currentPage: 0,
+    }));
   };
 
   const getAllArticles = async ({ page, author, tag, favorited } = {}) => {
     const articles =
-      articleList?.tab === "feed"
+      currentTab === "feed"
         ? await api.Articles.feed(page)
         : await api.Articles.getAll({
             page: page ?? articleList.currentPage,
-            author: author ?? articleList.author,
-            tag: tag ?? articleList.tag,
+            author: author ?? currentAuthor,
+            tag: tag ?? currentTag,
             favorited: favorited ?? articleList.favorited,
             limit: articleList.articlesPerPage ?? 10,
           });
@@ -40,6 +49,25 @@ const Provider = ({ children }) => {
       ...articles,
       currentPage: page ?? prev.currentPage,
     }));
+  };
+
+  const getArticlesByTag = async ({ tag, page }) => {
+    const articles = await api.Articles.getAll({ tag, page });
+    setArticleList({ ...articleList, ...articles, currentPage: 0 });
+  };
+
+  const getFavoriteArticles = async ({ username, page }) => {
+    const articles = await api.Articles.getAll({
+      favorited: username,
+      limit: 5,
+      page,
+    });
+    setArticleList({ ...articleList, ...articles, currentPage: 0 });
+  };
+
+  const getArticlesByAuthor = async ({ author, page }) => {
+    const articles = await api.Articles.getAll({ author, limit: 5, page });
+    setArticleList({ ...articleList, ...articles, currentPage: 0 });
   };
 
   useEffect(() => {
@@ -55,14 +83,21 @@ const Provider = ({ children }) => {
         articleList,
         setArticleList,
         getAllArticles,
+        getArticlesByTag,
+        getFavoriteArticles,
+        getArticlesByAuthor,
+        currentAuthor,
+        setCurrentAuthor,
         comments,
         setComments,
         profile,
         setProfile,
         tags,
         setTags,
-        auth,
-        setAuth,
+        currentTab,
+        setCurrentTab,
+        currentTag,
+        setCurrentTag,
       }}
     >
       {children}

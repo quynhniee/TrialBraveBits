@@ -4,7 +4,7 @@ import "./index.css";
 import App from "./App";
 import { BrowserRouter } from "react-router-dom";
 import StoreProvider from "./app/store";
-import AuthProvider from "./features/auth";
+import AuthProvider from "./app/auth";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
