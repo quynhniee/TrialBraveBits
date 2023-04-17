@@ -1,12 +1,14 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import CommentList from "./CommentList";
 import Errors from "./Errors";
 import { AuthContext } from "../app/auth";
+import Context from "../app/context";
+import api from "../api";
+import { createComment } from "../features/comment";
 
-function CommentForm() {
-  const currentUser = undefined;
-  const { slug } = useParams();
+function CommentForm({ createCommentHandle }) {
+  const { setCurrentUser, currentUser } = useContext(Context);
   const [body, setBody] = useState("");
 
   const changeBody = (event) => {
@@ -15,9 +17,16 @@ function CommentForm() {
 
   const saveComment = (event) => {
     event.preventDefault();
+    createCommentHandle(body);
     setBody("");
   };
 
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    setCurrentUser(user);
+  }, []);
+
+  if (!currentUser) return <p>Loading...</p>;
   return (
     <form className="card comment-form" onSubmit={saveComment}>
       <div className="card-block">
@@ -48,18 +57,33 @@ function CommentForm() {
 }
 
 const CommentSection = () => {
-  const errors = [];
+  const { comments, setComments } = useContext(Context);
+  const { slug } = useParams();
   const { isAuth } = useContext(AuthContext);
+  const errors = [];
 
+  const addCommentPending = (response) => {
+    setComments([response, ...comments]);
+  };
+
+  const createCommentHandle = (body) => {
+    createComment({ slug, body: body.trim() }, addCommentPending);
+  };
+
+  useEffect(() => {
+    api.Comments.get(slug).then((response) => {
+      setComments(response.comments);
+    });
+  }, []);
   return (
     <div className="row">
       {isAuth ? (
         <div className="col-xs-12 col-md-8 offset-md-2">
           <Errors errors={errors} />
 
-          <CommentForm />
+          <CommentForm createCommentHandle={createCommentHandle} />
 
-          <CommentList />
+          <CommentList comments={comments} />
         </div>
       ) : (
         <div className="col-xs-12 col-md-8 offset-md-2">
@@ -70,7 +94,7 @@ const CommentSection = () => {
             &nbsp;to add comments on this article.
           </p>
 
-          <CommentList />
+          <CommentList comments={comments} />
         </div>
       )}
     </div>

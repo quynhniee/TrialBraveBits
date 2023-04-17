@@ -3,6 +3,7 @@ import { createContext, useState } from "react";
 export const AuthContext = createContext({
   isAuth: Boolean,
   setIsAuth: () => {},
+  isAuthor: () => {},
   currentUser: {},
   setCurrentUser: () => {},
 });
@@ -10,10 +11,12 @@ export const AuthContext = createContext({
 const AuthProvider = ({ children }) => {
   const [isAuth, setIsAuth] = useState();
   const [currentUser, setCurrentUser] = useState({});
-
+  const isAuthor = (commentAuthor) => {
+    return commentAuthor.username === currentUser.username;
+  };
   return (
     <AuthContext.Provider
-      value={{ isAuth, setIsAuth, currentUser, setCurrentUser }}
+      value={{ isAuth, setIsAuth, currentUser, setCurrentUser, isAuthor }}
     >
       {children}
     </AuthContext.Provider>

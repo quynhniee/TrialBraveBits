@@ -20,12 +20,12 @@ function App() {
   useEffect(() => {
     if (token && !isExpired) {
       setIsAuth(true);
-      setCurrentUser(user);
+      setCurrentUser(JSON.parse(user));
       api.Auth.setHeader(token);
     } else {
       setIsAuth(undefined);
     }
-  }, [isExpired, setCurrentUser, setIsAuth, token, user]);
+  }, [isExpired, setIsAuth, token]);
 
   return (
     <>
