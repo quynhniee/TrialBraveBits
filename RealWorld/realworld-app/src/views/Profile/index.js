@@ -1,8 +1,9 @@
 import React, { useContext, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Context from "../../app/context";
 import ArticleList from "../../components/ArticleList";
 import api from "../../api";
+import { AuthContext } from "../../app/auth";
 
 const EditProfileSettings = () => {
   return (
@@ -16,6 +17,8 @@ const EditProfileSettings = () => {
 };
 
 const FollowUserButton = ({ username, following }) => {
+  const navigate = useNavigate();
+  const { isAuth } = useContext(AuthContext);
   let message = "";
   let className = "btn btn-sm action-btn";
   if (following) {
@@ -25,16 +28,22 @@ const FollowUserButton = ({ username, following }) => {
     className += " btn-outline-secondary";
     message = `Follow ${username}`;
   }
-  const onClickHandle = () => {};
-  <button className={className} onClick={onClickHandle}>
-    <i className="ion-plus-round" />
-    &nbsp;
-    {message}
-  </button>;
+  const onClickHandle = () => {
+    if (isAuth !== true) {
+      navigate("/login");
+    }
+  };
+  return (
+    <button className={className} onClick={onClickHandle}>
+      <i className="ion-plus-round" />
+      &nbsp;
+      {message}
+    </button>
+  );
 };
 
 const UserInfo = ({ profile }) => {
-  const isCurrentUser = false;
+  const isCurrentUser = undefined;
   return (
     <div className="user-info">
       <div className="container">
@@ -51,14 +60,14 @@ const UserInfo = ({ profile }) => {
             <h4>{profile.username}</h4>
             <p>{profile.bio}</p>
 
-            {/* {isCurrentUser ? (
+            {isCurrentUser ? (
               <EditProfileSettings />
             ) : (
               <FollowUserButton
                 username={profile.username}
                 following={profile.following}
               />
-            )} */}
+            )}
           </div>
         </div>
       </div>
@@ -92,14 +101,24 @@ const ProfileTabs = ({ username, isFavorites }) => {
   );
 };
 
-const Profile = () => {
-  const { profile, setProfile, getAllArticles } = useContext(Context);
+const Profile = ({ isFavoritePage }) => {
+  const {
+    profile,
+    setProfile,
+    getFavoriteArticles,
+    getArticlesByAuthor,
+    setCurrentAuthor,
+  } = useContext(Context);
   const { username } = useParams();
 
   useEffect(() => {
     api.Profile.get(username).then((resp) => setProfile(resp.profile));
-    // getAllArticles({ page: 0 });
-  }, []);
+    setCurrentAuthor(username);
+    isFavoritePage
+      ? getFavoriteArticles({ username })
+      : getArticlesByAuthor({ author: username });
+  }, [username, isFavoritePage]);
+
   if (!profile) return;
   return (
     <div className="profile-page">
@@ -110,7 +129,7 @@ const Profile = () => {
           <div className="col-xs-12 col-md-10 offset-md-1">
             <ProfileTabs
               username={profile.username}
-              //   isFavorites={isFavoritePage}
+              isFavorites={isFavoritePage}
             />
 
             <ArticleList />

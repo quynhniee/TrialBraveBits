@@ -15,3 +15,10 @@ code {
 .nav-pills.outline-active .nav-link {
   outline: none;
 }
+
+.tag-pill,
+.tag-pill:focus,
+.page-link:focus {
+  border: none;
+  outline: none;
+}

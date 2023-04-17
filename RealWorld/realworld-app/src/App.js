@@ -19,6 +19,10 @@ function App() {
           <Route path="/register" element={<AuthScreen isRegister />} />
           <Route path="/article/:slug" element={<Article />} />
           <Route path="/user/:username" element={<Profile />} />
+          <Route
+            path="/user/:username/favorites"
+            element={<Profile isFavoritePage />}
+          />
         </Routes>
       </Suspense>
     </>

@@ -1,12 +1,11 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import ArticleList from "../../components/ArticleList";
 import Context from "../../app/context";
-import { AuthContext } from "../../features/auth";
+import { AuthContext } from "../../app/auth";
 
 const YourFeed = () => {
-  const { articleList, changeTab } = useContext(Context);
+  const { currentTab, changeTab } = useContext(Context);
   const isAuthenticated = useContext(AuthContext);
-  const currentTab = articleList.tab;
   const isActiveTab = currentTab === "feed";
 
   const onClickHandle = () => {
@@ -28,8 +27,7 @@ const YourFeed = () => {
 };
 
 const GlobalFeed = () => {
-  const { articleList, changeTab } = useContext(Context);
-  const currentTab = articleList.tab;
+  const { currentTab, changeTab } = useContext(Context);
   const isActiveTab = currentTab === "all";
 
   const onClickHandle = () => {
@@ -48,7 +46,28 @@ const GlobalFeed = () => {
     </li>
   );
 };
+
+const Filter = () => {
+  const { currentTag } = useContext(Context);
+  if (!currentTag) {
+    return null;
+  }
+
+  return (
+    <li className="nav-item">
+      <button type="button" className="nav-link active">
+        <i className="ion-pound" /> {currentTag}
+      </button>
+    </li>
+  );
+};
 const View = () => {
+  const { isAuth } = useContext(AuthContext);
+  const { changeTab } = useContext(Context);
+  useEffect(() => {
+    changeTab(isAuth === true ? "feed" : "all");
+  }, []);
+
   return (
     <div className="col-md-9">
       <div className="feed-toggle">
@@ -56,9 +75,10 @@ const View = () => {
           <YourFeed />
 
           <GlobalFeed />
+
+          <Filter />
         </ul>
       </div>
-
       <ArticleList />
     </div>
   );
