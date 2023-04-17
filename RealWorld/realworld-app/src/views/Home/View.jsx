@@ -5,14 +5,14 @@ import { AuthContext } from "../../app/auth";
 
 const YourFeed = () => {
   const { currentTab, changeTab } = useContext(Context);
-  const isAuthenticated = useContext(AuthContext);
+  const { isAuth } = useContext(AuthContext);
   const isActiveTab = currentTab === "feed";
 
   const onClickHandle = () => {
     changeTab("feed");
   };
 
-  if (isAuthenticated !== true) return null;
+  if (isAuth !== true) return null;
   return (
     <li className="nav-item">
       <button
@@ -65,7 +65,7 @@ const View = () => {
   const { isAuth } = useContext(AuthContext);
   const { changeTab } = useContext(Context);
   useEffect(() => {
-    changeTab(isAuth === true ? "feed" : "all");
+    changeTab(isAuth ? "feed" : "all");
   }, []);
 
   return (

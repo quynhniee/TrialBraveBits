@@ -1,8 +1,15 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Errors from "../../components/Errors";
+import api from "../../api";
+import { login, register } from "../../features/auth";
+import { AuthContext } from "../../app/auth";
+import Context from "../../app/context";
 
 const AuthScreen = ({ isRegister }) => {
+  const navigate = useNavigate();
+  const { setIsAuth } = useContext(AuthContext);
+  const { setCurrentUser } = useContext(Context);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -20,8 +27,33 @@ const AuthScreen = ({ isRegister }) => {
     setPassword(event.target.value);
   };
 
-  const submitHandle = (e) => {
+  const rejected = (data) => setErrors(data);
+  const pending = (token, user) => {
+    api.Auth.setHeader(token);
+    setCurrentUser(user);
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
+    setIsAuth(true);
+    navigate("/");
+  };
+
+  const submitHandle = async (e) => {
     e.preventDefault();
+    if (isRegister) {
+      // api.Auth.register(username, email, password)
+      //   .then((response) => response.data)
+      //   .then((data) => {
+      //     setErrors(data.errors ?? []);
+      //   });
+      await register({ username, email, password }, rejected, pending);
+    } else {
+      // api.Auth.login(email, password)
+      //   .then((response) => response.data)
+      //   .then((data) => {
+      //     setErrors(data.errors ?? []);
+      //   });
+      await login({ email, password }, rejected, pending);
+    }
   };
 
   return (
@@ -40,7 +72,7 @@ const AuthScreen = ({ isRegister }) => {
               )}
             </p>
 
-            <Errors errors={[]} />
+            <Errors errors={errors} />
 
             <form onSubmit={submitHandle}>
               {isRegister ? (
@@ -60,7 +92,7 @@ const AuthScreen = ({ isRegister }) => {
               <fieldset className="form-group">
                 <input
                   className="form-control form-control-lg"
-                  type="text"
+                  type="email"
                   placeholder="Email"
                   value={email}
                   onChange={changeEmail}

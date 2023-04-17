@@ -14,6 +14,7 @@ const Provider = ({ children }) => {
   const [currentTag, setCurrentTag] = useState();
   const [currentTab, setCurrentTab] = useState();
   const [currentAuthor, setCurrentAuthor] = useState();
+  const [currentUser, setCurrentUser] = useState();
   const [comments, setComments] = useState([]);
   const [profile, setProfile] = useState(undefined);
   const [tags, setTags] = useState([]);
@@ -22,10 +23,9 @@ const Provider = ({ children }) => {
     setCurrentTab(tab);
     setCurrentTag(undefined);
     setCurrentAuthor(undefined);
+
     const articles =
-      currentTab === "feed"
-        ? await api.Articles.feed(0)
-        : await api.Articles.getAll();
+      tab === "feed" ? await api.Articles.feed(0) : await api.Articles.getAll();
     setArticleList((prev) => ({
       ...prev,
       ...articles,
@@ -70,10 +70,6 @@ const Provider = ({ children }) => {
     setArticleList({ ...articleList, ...articles, currentPage: 0 });
   };
 
-  useEffect(() => {
-    changeTab("all");
-  }, []);
-
   return (
     <Context.Provider
       value={{
@@ -88,6 +84,8 @@ const Provider = ({ children }) => {
         getArticlesByAuthor,
         currentAuthor,
         setCurrentAuthor,
+        currentUser,
+        setCurrentUser,
         comments,
         setComments,
         profile,

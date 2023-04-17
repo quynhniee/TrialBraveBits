@@ -9,7 +9,7 @@ const Auth = {
 
   // Existing user login
   login: (email, password) =>
-    request.post("/users", { user: { email, password } }),
+    request.post("/users/login", { user: { email, password } }),
 
   // Register a new user
   register: (username, email, password) =>

@@ -4,10 +4,6 @@ const Articles = {
   // Get recent articles globally
   getAll: (query) => request.get("/articles", query),
 
-  // Get article favorited by author
-  // favoritedBy: (username, page) =>
-  //   request.get("/articles", { favorited: username, limit: 5, page }),
-
   // Get recent articles from users you follow
   feed: (page) => request.get("/articles/feed", { page }),
 
