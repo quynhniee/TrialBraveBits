@@ -30,7 +30,7 @@ const request = {
       );
       return response.data;
     } catch (error) {
-      return error.response;
+      return error.response.data;
     }
   },
 
@@ -39,7 +39,7 @@ const request = {
       const response = await axios.post(url, body);
       return response.data;
     } catch (error) {
-      return error.response;
+      return error.response.data;
     }
   },
 
@@ -48,7 +48,7 @@ const request = {
       const response = await axios.put(url, body);
       return response.data;
     } catch (error) {
-      return error.response;
+      return error.response.data;
     }
   },
 
@@ -57,7 +57,7 @@ const request = {
       const response = await axios.delete(url);
       return response.data;
     } catch (error) {
-      return error.response;
+      return error.response.data;
     }
   },
 };
