@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import Context from "../../app/context";
 import ArticleList from "../../components/ArticleList";
@@ -16,28 +16,36 @@ const EditProfileSettings = () => {
   );
 };
 
-const FollowUserButton = ({ username, following }) => {
+const FollowUserButton = ({ username, isFollowed }) => {
+  const [following, setFollowing] = useState(isFollowed);
   const navigate = useNavigate();
   const { isAuth } = useContext(AuthContext);
-  let message = "";
-  let className = "btn btn-sm action-btn";
-  if (following) {
-    className += " btn-secondary";
-    message = `Unfollow ${username}`;
-  } else {
-    className += " btn-outline-secondary";
-    message = `Follow ${username}`;
-  }
-  const onClickHandle = () => {
+
+  const followHandle = () => {
+    setFollowing(true);
+    api.Profile.follow(username);
+  };
+
+  const unfollowHandle = () => {
+    setFollowing(false);
+    api.Profile.unfollow(username);
+  };
+
+  const followAuthorHandle = () => {
     if (isAuth !== true) {
       navigate("/login");
+      return;
     }
+    following === true ? unfollowHandle() : followHandle();
   };
+
   return (
-    <button className={className} onClick={onClickHandle}>
-      <i className="ion-plus-round" />
-      &nbsp;
-      {message}
+    <button
+      className={`btn btn-sm action-btn ${following === true ? "active" : ""}`}
+      onClick={followAuthorHandle}
+    >
+      <i className="ion-plus-round"></i>
+      &nbsp; {following === true ? "Unfollow " : "Follow"} {username}
     </button>
   );
 };
@@ -65,7 +73,7 @@ const UserInfo = ({ profile }) => {
             ) : (
               <FollowUserButton
                 username={profile.username}
-                following={profile.following}
+                isFollowed={profile.following}
               />
             )}
           </div>
@@ -110,9 +118,12 @@ const Profile = ({ isFavoritePage }) => {
     setCurrentAuthor,
   } = useContext(Context);
   const { username } = useParams();
+  // const [profile, setProfile] = useState();
 
   useEffect(() => {
-    api.Profile.get(username).then((resp) => setProfile(resp.profile));
+    api.Profile.get(username).then((response) => {
+      setProfile(response.profile);
+    });
     setCurrentAuthor(username);
     isFavoritePage
       ? getFavoriteArticles({ username })

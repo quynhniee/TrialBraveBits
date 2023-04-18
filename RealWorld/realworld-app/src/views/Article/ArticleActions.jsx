@@ -9,6 +9,8 @@ const ArticleActions = ({ article }) => {
   const navigate = useNavigate();
   const [favorited, setFavorited] = useState(article.favorited);
   const [favoritesCount, setFavoritesCount] = useState(article.favoritesCount);
+  const [following, setFollowing] = useState(article.author.following);
+  const username = article.author.username;
 
   const favoriteHandle = () => {
     setFavorited(true);
@@ -22,19 +24,30 @@ const ArticleActions = ({ article }) => {
     api.Articles.unfavorite(slug);
   };
 
-  const followHandle = () => {
-    if (isAuth !== true) {
-      navigate("/login");
-      return;
-    }
-  };
-
   const favoriteArticleHandle = () => {
     if (isAuth !== true) {
       navigate("/login");
       return;
     }
     favorited === true ? unfavoriteHandle() : favoriteHandle();
+  };
+
+  const followHandle = () => {
+    setFollowing(true);
+    api.Profile.follow(username);
+  };
+
+  const unfollowHandle = () => {
+    setFollowing(false);
+    api.Profile.unfollow(username);
+  };
+
+  const followAuthorHandle = () => {
+    if (isAuth !== true) {
+      navigate("/login");
+      return;
+    }
+    following === true ? unfollowHandle() : followHandle();
   };
 
   const removeArticle = () => {
@@ -51,11 +64,13 @@ const ArticleActions = ({ article }) => {
     return (
       <>
         <button
-          className="btn btn-sm btn-outline-secondary"
-          onClick={followHandle}
+          className={`btn btn-sm btn-outline-secondary ${
+            following === true ? "active" : ""
+          }`}
+          onClick={followAuthorHandle}
         >
           <i className="ion-plus-round"></i>
-          &nbsp; Follow {article.author.username}
+          &nbsp; {following === true ? "Unfollow " : "Follow"} {username}
         </button>
         &nbsp;
         <button
