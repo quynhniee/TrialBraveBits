@@ -51,7 +51,8 @@ const FollowUserButton = ({ username, isFollowed }) => {
 };
 
 const UserInfo = ({ profile }) => {
-  const isCurrentUser = undefined;
+  const { isAuthor } = useContext(AuthContext);
+  const isCurrentUser = isAuthor(profile);
   return (
     <div className="user-info">
       <div className="container">
@@ -130,7 +131,7 @@ const Profile = ({ isFavoritePage }) => {
       : getArticlesByAuthor({ author: username });
   }, [username, isFavoritePage]);
 
-  if (!profile) return;
+  if (!profile) return <h1>Loading...</h1>;
   return (
     <div className="profile-page">
       <UserInfo profile={profile} />

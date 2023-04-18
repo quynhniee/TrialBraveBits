@@ -10,6 +10,7 @@ const Home = lazy(() => import("./views/Home"));
 const AuthScreen = lazy(() => import("./views/Auth"));
 const Article = lazy(() => import("./views/Article"));
 const Profile = lazy(() => import("./views/Profile"));
+const Editor = lazy(() => import("./views/Editor"));
 
 function App() {
   const { setIsAuth, setCurrentUser } = useContext(AuthContext);
@@ -41,6 +42,7 @@ function App() {
             path="/user/:username/favorites"
             element={<Profile isFavoritePage />}
           />
+          <Route path="/editor" element={<Editor />} />
         </Routes>
       </Suspense>
     </>

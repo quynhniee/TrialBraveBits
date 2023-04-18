@@ -4,12 +4,10 @@ import Errors from "../../components/Errors";
 import api from "../../api";
 import { login, register } from "../../features/auth";
 import { AuthContext } from "../../app/auth";
-import Context from "../../app/context";
 
 const AuthScreen = ({ isRegister }) => {
   const navigate = useNavigate();
-  const { setIsAuth } = useContext(AuthContext);
-  const { setCurrentUser } = useContext(Context);
+  const { setIsAuth, setCurrentUser } = useContext(AuthContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -28,30 +26,21 @@ const AuthScreen = ({ isRegister }) => {
   };
 
   const rejected = (data) => setErrors(data);
+
   const pending = (token, user) => {
     api.Auth.setHeader(token);
     setCurrentUser(user);
+    setIsAuth(true);
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
-    setIsAuth(true);
     navigate("/");
   };
 
   const submitHandle = async (e) => {
     e.preventDefault();
     if (isRegister) {
-      // api.Auth.register(username, email, password)
-      //   .then((response) => response.data)
-      //   .then((data) => {
-      //     setErrors(data.errors ?? []);
-      //   });
       await register({ username, email, password }, rejected, pending);
     } else {
-      // api.Auth.login(email, password)
-      //   .then((response) => response.data)
-      //   .then((data) => {
-      //     setErrors(data.errors ?? []);
-      //   });
       await login({ email, password }, rejected, pending);
     }
   };

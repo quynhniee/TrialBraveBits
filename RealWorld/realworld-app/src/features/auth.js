@@ -6,7 +6,7 @@ export const register = async (
   pending
 ) => {
   try {
-    const data = await api.Auth.login(email, password);
+    const data = await api.Auth.register(username, email, password);
 
     if (data?.errors) {
       rejected(data.errors);
@@ -29,7 +29,6 @@ export const login = async ({ email, password }, rejected, pending) => {
       rejected(data.errors);
       return;
     }
-    console.log(data);
     const { token, ...user } = data?.user;
     pending(token, user);
 

@@ -4,7 +4,9 @@ import Context from "../app/context";
 import Pagination from "./Pagination";
 
 const ArticleList = () => {
-  const { articleList } = useContext(Context);
+  const { articleList, loading } = useContext(Context);
+  if (loading === true)
+    return <div className="article-preview">Loading...</div>;
   const articles = articleList.articles;
 
   if (articles === undefined || articles.length === 0)

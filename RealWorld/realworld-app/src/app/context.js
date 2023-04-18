@@ -24,6 +24,8 @@ const Context = createContext({
   getArticlesByTag: () => {},
   getFavoriteArticles: () => {},
   getArticlesByAuthor: () => {},
+  loading: Boolean,
+  setLoading: () => {},
 });
 
 export default Context;

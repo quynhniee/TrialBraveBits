@@ -8,7 +8,7 @@ import api from "../api";
 import { createComment } from "../features/comment";
 
 function CommentForm({ createCommentHandle }) {
-  const { setCurrentUser, currentUser } = useContext(Context);
+  const { setCurrentUser, currentUser } = useContext(AuthContext);
   const [body, setBody] = useState("");
 
   const changeBody = (event) => {

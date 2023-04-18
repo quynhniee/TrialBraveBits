@@ -1,6 +1,5 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import Context from "../app/context";
 import { AuthContext } from "../app/auth";
 
 const LoggedOutNavbar = () => {
@@ -28,7 +27,8 @@ const LoggedOutNavbar = () => {
 };
 
 const LoggedInNavbar = () => {
-  const { currentUser } = useContext(Context);
+  const { currentUser } = useContext(AuthContext);
+
   return (
     <ul className="nav navbar-nav pull-xs-right">
       <li className="nav-item">
@@ -40,7 +40,7 @@ const LoggedInNavbar = () => {
       <li className="nav-item">
         <Link to="/editor" className="nav-link">
           <i className="ion-compose" />
-          &nbsp;New Post
+          &nbsp;New Article
         </Link>
       </li>
 
