@@ -3,10 +3,10 @@ import { useJwt } from "react-jwt";
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import Header from "./components/Header";
-import Home from "./views/Home";
 import { AuthContext } from "./app/auth";
 import api from "./api";
 
+const Home = lazy(() => import("./views/Home"));
 const AuthScreen = lazy(() => import("./views/Auth"));
 const Article = lazy(() => import("./views/Article"));
 const Profile = lazy(() => import("./views/Profile"));
@@ -25,7 +25,7 @@ function App() {
     } else {
       setIsAuth(undefined);
     }
-  }, [isExpired, setIsAuth, token]);
+  }, [isExpired, setCurrentUser, setIsAuth, token, user]);
 
   return (
     <>

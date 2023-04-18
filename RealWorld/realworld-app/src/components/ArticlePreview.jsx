@@ -1,16 +1,35 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import TagList from "./TagList";
 import { AuthContext } from "../app/auth";
+import api from "../api";
 
 const ArticlePreview = ({ article }) => {
   const { isAuth } = useContext(AuthContext);
   const navigate = useNavigate();
-  const clickHandle = () => {
+  const [favorited, setFavorited] = useState(article.favorited);
+  const [favoritesCount, setFavoritesCount] = useState(article.favoritesCount);
+  const slug = article.slug;
+
+  const favoriteHandle = () => {
+    setFavorited(true);
+    setFavoritesCount((prev) => prev + 1);
+    api.Articles.favorite(slug);
+  };
+
+  const unfavoriteHandle = () => {
+    setFavorited(false);
+    setFavoritesCount((prev) => prev - 1);
+    api.Articles.unfavorite(slug);
+  };
+
+  const clickHandle = (e) => {
+    e.stopPropagation();
     if (isAuth !== true) {
       navigate("/login");
       return;
     }
+    favorited === true ? unfavoriteHandle() : favoriteHandle();
   };
 
   return (
@@ -30,10 +49,12 @@ const ArticlePreview = ({ article }) => {
         </div>
 
         <button
-          className="btn btn-outline-primary btn-sm pull-xs-right"
+          className={`btn btn-outline-primary btn-sm pull-xs-right ${
+            favorited === true ? "active" : ""
+          }`}
           onClick={clickHandle}
         >
-          <i className="ion-heart"></i> {article.favoritesCount}
+          <i className="ion-heart"></i> {favoritesCount}
         </button>
       </div>
 
