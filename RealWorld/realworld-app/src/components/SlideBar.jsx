@@ -15,6 +15,16 @@ const SlideBar = () => {
     Tags.getAll().then((resp) => setTags(resp.tags));
   }, []);
 
+  if (!tags || tags.length === 0)
+    return (
+      <div className="col-md-3">
+        <div className="sidebar">
+          <p>Popular Tags</p>
+          <div className="tag-list">Loading tags...</div>
+        </div>
+      </div>
+    );
+
   return (
     <div className="col-md-3">
       <div className="sidebar">

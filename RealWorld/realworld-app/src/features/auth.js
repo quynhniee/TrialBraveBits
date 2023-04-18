@@ -37,3 +37,17 @@ export const login = async ({ email, password }, rejected, pending) => {
     throw error;
   }
 };
+
+export const updateUser = async ({ user }, rejected, pending) => {
+  try {
+    const data = await api.Auth.update(user);
+    if (data?.errors) {
+      rejected(data.errors);
+      return;
+    }
+    const { token, ...updatedUser } = data?.user;
+    pending(token, updatedUser);
+  } catch (error) {
+    throw error;
+  }
+};

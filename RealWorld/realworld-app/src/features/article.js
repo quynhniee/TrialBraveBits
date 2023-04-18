@@ -16,7 +16,7 @@ export const createArticle = async ({ article }, rejected, pending) => {
 
 export const updateArticle = async ({ slug, article }, rejected, pending) => {
   try {
-    const { data } = await api.Articles.update(slug, article);
+    const data = await api.Articles.update(slug, article);
     if (data?.errors) {
       rejected(data.errors);
       return;

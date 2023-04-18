@@ -11,6 +11,7 @@ const AuthScreen = lazy(() => import("./views/Auth"));
 const Article = lazy(() => import("./views/Article"));
 const Profile = lazy(() => import("./views/Profile"));
 const Editor = lazy(() => import("./views/Editor"));
+const SettingsScreen = lazy(() => import("./views/Auth/SettingsScreen"));
 
 function App() {
   const { setIsAuth, setCurrentUser } = useContext(AuthContext);
@@ -38,11 +39,13 @@ function App() {
           <Route path="/register" element={<AuthScreen isRegister />} />
           <Route path="/article/:slug" element={<Article />} />
           <Route path="/user/:username" element={<Profile />} />
+          <Route path="/settings" element={<SettingsScreen />} />
           <Route
             path="/user/:username/favorites"
             element={<Profile isFavoritePage />}
           />
           <Route path="/editor" element={<Editor />} />
+          <Route path="/editor/:slug" element={<Editor />} />
         </Routes>
       </Suspense>
     </>

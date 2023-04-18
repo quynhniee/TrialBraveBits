@@ -21,11 +21,6 @@ function CommentForm({ createCommentHandle }) {
     setBody("");
   };
 
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    setCurrentUser(user);
-  }, []);
-
   if (!currentUser) return <p>Loading...</p>;
   return (
     <form className="card comment-form" onSubmit={saveComment}>
