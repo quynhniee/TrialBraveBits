@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Context from "../../app/context";
 import Errors from "../../components/Errors";
-import api from "../../api";
 import { createArticle, updateArticle } from "../../features/article";
 
 const Editor = () => {
@@ -19,6 +18,7 @@ const Editor = () => {
   const changeTitle = (event) => {
     setTitle(event.target.value);
   };
+
   const changeDescription = (event) => {
     setDescription(event.target.value);
   };
@@ -66,6 +66,7 @@ const Editor = () => {
   const pending = (article) => {
     navigate("/");
   };
+
   const submitForm = async (event) => {
     event.preventDefault();
     const article = {
@@ -75,20 +76,15 @@ const Editor = () => {
       body,
       tagList,
     };
-    // console.log(slug);
     slug
       ? updateArticle({ slug, article }, rejected, pending)
       : createArticle({ article }, rejected, pending);
-
-    // slug
-    //   ? await api.Articles.update(slug, article)
-    //   : await api.Articles.create(article);
-    // navigate("/");
   };
 
   useEffect(() => {
     resetValue();
   }, []);
+
   return (
     <div className="editor-page">
       <div className="container page">

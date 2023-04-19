@@ -8,12 +8,14 @@ import TagList from "../../components/TagList";
 const CommentSection = lazy(() => import("../../components/CommentSection"));
 
 const Article = () => {
-  const { article, setArticle } = useContext(Context);
+  const { article, setArticle, setLoading } = useContext(Context);
   const { slug } = useParams();
 
   useEffect(() => {
+    setLoading(true);
     api.Articles.get(slug).then((response) => {
       setArticle(response.article);
+      setLoading(false);
     });
   }, []);
 

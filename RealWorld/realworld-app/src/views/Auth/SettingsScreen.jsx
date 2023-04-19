@@ -1,8 +1,10 @@
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../../app/auth";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import Errors from "../../components/Errors";
 import { updateUser } from "../../features/auth";
+import Context from "../../app/context";
+import api from "../../api";
 
 const SettingsForm = ({ currentUser, onSaveSettings }) => {
   const [image, setImage] = useState(
@@ -121,6 +123,7 @@ const SettingsForm = ({ currentUser, onSaveSettings }) => {
 const SettingsScreen = () => {
   const { currentUser, isAuth, setIsAuth, setCurrentUser } =
     useContext(AuthContext);
+  const { changeTab } = useContext(Context);
   const [errors, setErrors] = useState([]);
   const navigate = useNavigate();
 
@@ -143,9 +146,11 @@ const SettingsScreen = () => {
     setIsAuth();
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    window.location.reload();
   };
 
-  if (!isAuth) navigate("/");
+  if (!isAuth) return <Navigate to="/" />;
+
   return (
     <div className="settings-page">
       <div className="container page">
