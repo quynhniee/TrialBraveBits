@@ -1,0 +1,12 @@
+div.Polaris-TextField__VerticalContent {
+    overflow: auto;
+    max-height: none;
+}
+
+textarea {
+    resize: none;
+}
+
+.Polaris-Button--primaryPlain path {
+    /* fill: none; */
+}
