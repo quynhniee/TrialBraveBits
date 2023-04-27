@@ -1,19 +1,52 @@
-import { Box, HorizontalGrid, Page, VerticalStack } from "@shopify/polaris";
+import {
+  Badge,
+  Box,
+  HorizontalGrid,
+  Page,
+  VerticalStack,
+} from "@shopify/polaris";
 import { DuplicateMinor, ViewMinor, DeleteMinor } from "@shopify/polaris-icons";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FormEditor,
   OnlineStore,
-  SearchEngine,
+  SkeletonExample,
   Visibility,
 } from "../components";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAuthenticatedFetch } from "@shopify/app-bridge-react";
+import { useAppQuery } from "../hooks";
 
 // This example is for guidance purposes. Copying it will come with caveats.
 function AddPage() {
+  const { id } = useParams();
+  const fetch = useAuthenticatedFetch();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState();
+  const [visibility, setVisibility] = useState("");
+
+  const { data, refetch } = useAppQuery({
+    url: `/api/pages?id=${id}`,
+    reactQueryOptions: {
+      onSuccess: (data) => {
+        console.log(data);
+        setLoading(false);
+        setPage(data);
+        setVisibility(data.published_at);
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    },
+  });
+
+  if (loading === true) return <SkeletonExample />;
   return (
     <Page
       backAction={{ content: "Add page", url: "/" }}
-      title="Add page"
+      title={page?.title}
+      titleMetadata={page?.published_at ? null : <Badge>Hidden</Badge>}
       secondaryActions={[
         {
           content: "Duplicate",
@@ -27,13 +60,6 @@ function AddPage() {
           accessibilityLabel: "Secondary action label",
           onAction: () => alert("Archive action"),
         },
-        {
-          content: "Delete",
-          icon: DeleteMinor,
-          destructive: true,
-          accessibilityLabel: "Secondary action label",
-          onAction: () => alert("Delete action"),
-        },
       ]}
       pagination={{
         hasPrevious: true,
@@ -43,13 +69,10 @@ function AddPage() {
       <HorizontalGrid columns={{ xs: 1, md: "2fr 1fr" }} gap="4">
         <VerticalStack gap="4">
           {/* Editor Block */}
-          <FormEditor />
-
-          {/* Search engine listing preview */}
-          <SearchEngine />
+          <FormEditor page={page} />
         </VerticalStack>
 
-        <VerticalStack gap={{ xs: "4", md: "2" }}>
+        <VerticalStack gap={{ xs: "4", md: "4" }}>
           {/* Visibility */}
           <Visibility />
 

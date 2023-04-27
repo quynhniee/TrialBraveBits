@@ -8,10 +8,21 @@ import {
   LegacyCard,
   Text,
   TextField,
+  Tooltip,
   VerticalStack,
 } from "@shopify/polaris";
 import { EmbedMinor } from "@shopify/polaris-icons";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  FaBold,
+  FaItalic,
+  FaUnderline,
+  FaListUl,
+  FaListOl,
+  FaAlignLeft,
+  FaOutdent,
+  FaIndent,
+} from "react-icons/fa";
 
 const handleBoldClick = () => {
   const selection = window.getSelection();
@@ -40,8 +51,18 @@ const handleUnderlineClick = () => {
   range.insertNode(underlineElement);
 };
 
-export const TextEditor = () => {
-  const [content, setContent] = useState();
+export const TextEditor = ({ body_html }) => {
+  const iframeRef = useRef();
+
+  useEffect(() => {
+    const doc =
+      iframeRef.current.contentDocument ||
+      iframeRef.current.contentWindow.document;
+    doc.designMode = "on";
+    doc.write(
+      `<html><head></head><body><p>${body_html ?? ""}</p></body></html>`
+    );
+  }, []);
 
   return (
     <div>
@@ -49,26 +70,48 @@ export const TextEditor = () => {
       <Box borderWidth="1" borderRadius="1" borderColor="border">
         <Box padding="2">
           <HorizontalStack align="space-between">
-            <ButtonGroup segmented>
-              <Button onClick={handleBoldClick}>
-                <strong>B</strong>
-              </Button>
-              <Button onClick={handleItalicClick}>
-                <em>I</em>
-              </Button>
-              <Button onClick={handleUnderlineClick}>
-                <u>U</u>
-              </Button>
-            </ButtonGroup>
-            <Button>
+            <HorizontalStack gap="2">
+              <ButtonGroup segmented>
+                <Tooltip content="Bold" dismissOnMouseOut>
+                  <Button size="slim" onClick={handleBoldClick}>
+                    <FaBold />
+                  </Button>
+                </Tooltip>
+                <Tooltip content="Italic" dismissOnMouseOut>
+                  <Button size="slim" onClick={handleItalicClick}>
+                    <FaItalic />
+                  </Button>
+                </Tooltip>
+                <Tooltip content="Underline" dismissOnMouseOut>
+                  <Button size="slim" onClick={handleUnderlineClick}>
+                    <FaUnderline />
+                  </Button>
+                </Tooltip>
+              </ButtonGroup>
+
+              <ButtonGroup segmented>
+                <Tooltip content="Outdent" dismissOnMouseOut>
+                  <Button size="slim">
+                    <FaOutdent />
+                  </Button>
+                </Tooltip>
+                <Tooltip content="Indent" dismissOnMouseOut>
+                  <Button size="slim">
+                    <FaIndent />
+                  </Button>
+                </Tooltip>
+              </ButtonGroup>
+            </HorizontalStack>
+            <Button size="slim">
               <Icon source={EmbedMinor} color="base" />
             </Button>
           </HorizontalStack>
         </Box>
         <Divider />
-        <div contentEditable style={{ minHeight: 150, padding: 8 }}>
+        <iframe frameBorder="0" ref={iframeRef}></iframe>
+        {/* <div contentEditable style={{ minHeight: 150, padding: 8 }}>
           content
-        </div>
+        </div>  */}
         {/* <TextField
           type="text"
           onChange={(e) => {

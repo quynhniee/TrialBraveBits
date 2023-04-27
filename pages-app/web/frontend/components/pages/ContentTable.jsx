@@ -12,24 +12,29 @@ import {
   Badge,
   HorizontalStack,
   ResourceItem,
+  SkeletonTabs,
+  SkeletonBodyText,
 } from "@shopify/polaris";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FavoriteMajor, SortMinor } from "@shopify/polaris-icons";
+import { useAppQuery } from "../../hooks";
 
-export const ContentFilters = ({ searchItems, sortItems, removeFilter }) => {
+export const ContentFilters = ({
+  visibility,
+  setVisibility,
+  sortItems,
+  searchItems,
+}) => {
   const [queryValue, setQueryValue] = useState("");
   const [active, setActive] = useState(false);
-  const [selected, setSelected] = useState("");
-  const [visibility, setVisibility] = useState("");
+  const [selected, setSelected] = useState("newest");
 
   const visibilityChangeHandle = (value) => {
     setVisibility(value[0]);
-    sortItems(value[0]);
   };
 
   const visibilityRemoveHandle = () => {
-    setVisibility();
-    removeFilter();
+    setVisibility("");
   };
 
   const filters = [
@@ -42,7 +47,7 @@ export const ContentFilters = ({ searchItems, sortItems, removeFilter }) => {
             { label: "Visible", value: "visible" },
             { label: "Hidden", value: "hidden" },
           ]}
-          selected={visibility || []}
+          selected={visibility}
           onChange={visibilityChangeHandle}
         />
       ),
@@ -63,13 +68,13 @@ export const ContentFilters = ({ searchItems, sortItems, removeFilter }) => {
   const toggleActive = () => setActive(!active);
 
   const sortChangeHandle = (value) => {
-    setSelected(value[0]);
+    console.log(value[0]);
     sortItems(value[0]);
+    setSelected(value[0]);
   };
 
   const handleFiltersClearAll = () => {
     visibilityRemoveHandle();
-    removeFilter();
   };
 
   const appliedFilters = [];
@@ -117,6 +122,8 @@ export const ContentFilters = ({ searchItems, sortItems, removeFilter }) => {
             <ChoiceList
               title="Sort by"
               choices={[
+                { label: "Newest update", value: "newest" },
+                { label: "Oldest update", value: "oldest" },
                 { label: "Title A-Z", value: "AtoZ" },
                 { label: "Title Z-A", value: "ZtoA" },
               ]}
@@ -130,87 +137,24 @@ export const ContentFilters = ({ searchItems, sortItems, removeFilter }) => {
   );
 };
 
-const itemsSource = [
-  {
-    id: 108828309,
-    title: "Sample Page",
-    shop_id: 548380009,
-    handle: "sample",
-    body_html: "<p>this is a <strong>sample</strong> page.</p>",
-    author: "Dennis",
-    created_at: "2008-07-15T20:00:00-04:00",
-    updated_at: "2008-07-16T20:00:00-04:00",
-    published_at: null,
-    template_suffix: null,
-    admin_graphql_api_id: "gid://shopify/OnlineStorePage/108828309",
-  },
-  {
-    id: 169524623,
-    title: "Store hours",
-    shop_id: 548380009,
-    handle: "store-hours",
-    body_html: "<p>We never close.</p>",
-    author: "Jobs",
-    created_at: "2013-12-31T19:00:00-05:00",
-    updated_at: "2013-12-31T19:00:00-05:00",
-    published_at: "2014-02-01T19:00:00-05:00",
-    template_suffix: null,
-    admin_graphql_api_id: "gid://shopify/OnlineStorePage/169524623",
-  },
-  {
-    id: 322471,
-    title: "Support",
-    shop_id: 548380009,
-    handle: "support",
-    body_html: "<p>Come in store for support.</p>",
-    author: "Dennis",
-    created_at: "2009-07-15T20:00:00-04:00",
-    updated_at: "2009-07-16T20:00:00-04:00",
-    published_at: null,
-    template_suffix: null,
-    admin_graphql_api_id: "gid://shopify/OnlineStorePage/322471",
-  },
-  {
-    id: 131092082,
-    title: "Terms of Services",
-    shop_id: 548380009,
-    handle: "tos",
-    body_html:
-      "<p>We make <strong>perfect</strong> stuff, we don't need a warranty.</p>",
-    author: "Dennis",
-    created_at: "2008-07-15T20:00:00-04:00",
-    updated_at: "2008-07-16T20:00:00-04:00",
-    published_at: "2008-07-15T20:00:00-04:00",
-    template_suffix: null,
-    admin_graphql_api_id: "gid://shopify/OnlineStorePage/131092082",
-  },
-];
-
-const getDate = (dateString) => {
-  return new Date(dateString).toLocaleString("en-us", {
-    weekday: "long",
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
-  });
-};
-
-export const ContentTable = () => {
+const ItemList = ({ itemsSource, visibility, setVisibility, refetch }) => {
   const [items, setItems] = useState(itemsSource);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const searchItems = (string) => {
+    setLoading(true);
     string
       ? setItems(
-          itemsSource.filter(
-            (i) =>
-              i.title.toLowerCase().startsWith(string.toLowerCase()) === true
+          itemsSource.filter((i) =>
+            i.title.toLowerCase().startsWith(string.toLowerCase())
           )
         )
       : setItems(itemsSource);
   };
 
   const sortItems = (type) => {
+    setLoading(true);
     let tmp = [...items];
     switch (type) {
       case "AtoZ":
@@ -221,27 +165,60 @@ export const ContentTable = () => {
         tmp.sort((a, b) => (a.title < b.title ? 1 : -1));
         setItems(tmp);
         break;
-      case "visible":
-        setItems(itemsSource.filter((a) => a.published_at !== null));
-        break;
-      case "hidden":
-        setItems(itemsSource.filter((a) => a.published_at === null));
-        break;
+      case "oldest":
+        tmp.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+        setItems(tmp);
+      default:
+        tmp.sort((a, b) => new Date(a.updated_at) - new Date(b.updated_at));
+        setItems(tmp);
     }
   };
 
-  const removeFilter = () => setItems(itemsSource);
+  const bulkActions = [
+    {
+      content: "Make selected pages visible",
+      onAction: () => console.log(selectedItems),
+    },
+    {
+      content: "Hide selected pages",
+      onAction: () => console.log("Hide selected pages"),
+    },
+    {
+      destructive: true,
+      content: "Delete pages",
+      onAction: () => console.log("Delete pages"),
+    },
+  ];
+
+  useEffect(() => {
+    setItems(itemsSource);
+    setLoading(false);
+  }, [itemsSource]);
+
+  useEffect(() => {
+    setSelectedItems([]);
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+  }, [items]);
+
+  useEffect(() => {
+    setLoading(true);
+    refetch();
+  }, [visibility]);
 
   return (
-    <LegacyCard>
+    <>
       <Tabs tabs={[{ content: "All", id: 1 }]} selected={0} />
       <ResourceList
         resourceName={{ singular: "Pages", plural: "Pages" }}
+        bulkActions={bulkActions}
         filterControl={
           <ContentFilters
-            searchItems={searchItems}
+            visibility={visibility}
+            setVisibility={setVisibility}
             sortItems={sortItems}
-            removeFilter={removeFilter}
+            searchItems={searchItems}
           />
         }
         items={items}
@@ -249,13 +226,21 @@ export const ContentTable = () => {
         onSelectionChange={setSelectedItems}
         selectable
         renderItem={(item) => {
-          const { id, title, body_html, created_at, published_at } = item;
+          const { id, title, body_html, published_at, updated_at } = item;
           const shortcutActions = [
             {
               url: `/${id}`,
               content: published_at ? "View page" : "Preview page",
             },
           ];
+
+          if (loading === true)
+            return (
+              <div style={{ padding: 16 }}>
+                <SkeletonBodyText />
+              </div>
+            );
+
           return (
             <ResourceItem
               id={id}
@@ -272,11 +257,91 @@ export const ContentTable = () => {
               </HorizontalStack>
               <p>{body_html.replace(/<[^>]+>/g, "")}</p>
 
-              <p>{getDate(created_at)}</p>
+              <p>{getDate(updated_at)}</p>
             </ResourceItem>
           );
         }}
       />
+    </>
+  );
+};
+
+const getDate = (dateString) => {
+  const date = new Date(dateString);
+
+  const daysOfWeek = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const dayOfWeek = daysOfWeek[date.getDay()];
+
+  const hour = date.getHours() % 12 || 12;
+  const minute = date.getMinutes();
+  const ampm = date.getHours() < 12 ? "am" : "pm";
+
+  const formattedDate = `${dayOfWeek} at ${hour}:${minute
+    .toString()
+    .padStart(2, "0")} ${ampm}`;
+
+  return formattedDate;
+};
+
+const getPublishedStatus = (visibility) => {
+  switch (visibility) {
+    case "visible":
+      return "published";
+    case "hidden":
+      return "unpublished";
+    default:
+      return "any";
+  }
+};
+
+export const ContentTable = () => {
+  const [itemsSource, setItemsSource] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [visibility, setVisibility] = useState("");
+
+  const { refetch } = useAppQuery({
+    url: `/api/pages?published_status=${getPublishedStatus(visibility)}`,
+    reactQueryOptions: {
+      onSuccess: (data) => {
+        setItemsSource(data);
+        setLoading(false);
+        console.log(data);
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    },
+  });
+
+  const Skeleton = () => (
+    <LegacyCard>
+      <SkeletonTabs />
+      <div style={{ padding: 16 }}>
+        <SkeletonBodyText />
+      </div>
+    </LegacyCard>
+  );
+
+  return (
+    <LegacyCard>
+      {loading === true ? (
+        <Skeleton />
+      ) : (
+        <ItemList
+          itemsSource={itemsSource}
+          visibility={visibility}
+          setVisibility={setVisibility}
+          refetch={refetch}
+        />
+      )}
     </LegacyCard>
   );
 };

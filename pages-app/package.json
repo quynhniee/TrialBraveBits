@@ -15,7 +15,8 @@
     "@shopify/app": "3.45.1",
     "@shopify/app-bridge": "^3.7.6",
     "@shopify/cli": "3.45.1",
-    "@shopify/polaris": "^10.47.1"
+    "@shopify/polaris": "^10.47.1",
+    "react-icons": "^4.8.0"
   },
   "author": "Administrator"
 }

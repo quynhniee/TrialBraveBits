@@ -7,6 +7,6 @@ textarea {
     resize: none;
 }
 
-.Polaris-Button--primaryPlain path {
-    /* fill: none; */
+iframe {
+    width: 100%;
 }
