@@ -18,22 +18,26 @@ import {
 import React, { useEffect, useState } from "react";
 import { FavoriteMajor, SortMinor } from "@shopify/polaris-icons";
 import { useAppQuery } from "../../hooks";
+import { getTextContent } from "../../utils/htmlContent";
 
 export const ContentFilters = ({
   visibility,
   setVisibility,
   sortItems,
   searchItems,
+  changeTabHandle,
 }) => {
   const [queryValue, setQueryValue] = useState("");
   const [active, setActive] = useState(false);
   const [selected, setSelected] = useState("newest");
 
   const visibilityChangeHandle = (value) => {
+    changeTabHandle(1);
     setVisibility(value[0]);
   };
 
   const visibilityRemoveHandle = () => {
+    changeTabHandle(0);
     setVisibility("");
   };
 
@@ -141,7 +145,22 @@ const ItemList = ({ itemsSource, visibility, setVisibility, refetch }) => {
   const [items, setItems] = useState(itemsSource);
   const [selectedItems, setSelectedItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTab, setSelectedTab] = useState(0);
+  const [tabs, setTabs] = useState([{ content: "All", id: "all" }]);
 
+  const changeTabHandle = (tabIndex) => {
+    if (tabIndex === 0) {
+      refetch();
+      setTabs([{ content: "All", id: "all" }]);
+      setSelectedTab(0);
+    } else {
+      setTabs([
+        { content: "All", id: "all" },
+        { content: "Custom search", id: "search" },
+      ]);
+      setSelectedTab(1);
+    }
+  };
   const searchItems = (string) => {
     setLoading(true);
     string
@@ -174,10 +193,36 @@ const ItemList = ({ itemsSource, visibility, setVisibility, refetch }) => {
     }
   };
 
+  const bulkPublish = (published) => {
+    const { data, refetch } = useAppQuery({
+      url: `/api/pages/id=${selectedItems.toString()}`,
+      fetchInit: {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          published: published,
+        }),
+      },
+      reactQueryOptions: {
+        onSuccess: (data) => {
+          console.log(data);
+        },
+        onError: (error) => {
+          console.log(error);
+        },
+      },
+    });
+  };
+
   const bulkActions = [
     {
       content: "Make selected pages visible",
-      onAction: () => console.log(selectedItems),
+      onAction: () => {
+        console.log(selectedItems);
+        bulkPublish(true);
+      },
     },
     {
       content: "Hide selected pages",
@@ -209,12 +254,17 @@ const ItemList = ({ itemsSource, visibility, setVisibility, refetch }) => {
 
   return (
     <>
-      <Tabs tabs={[{ content: "All", id: 1 }]} selected={0} />
+      <Tabs
+        tabs={tabs}
+        selected={selectedTab}
+        onSelect={(number) => setSelectedTab(number)}
+      />
       <ResourceList
         resourceName={{ singular: "Pages", plural: "Pages" }}
         bulkActions={bulkActions}
         filterControl={
           <ContentFilters
+            changeTabHandle={changeTabHandle}
             visibility={visibility}
             setVisibility={setVisibility}
             sortItems={sortItems}
@@ -256,7 +306,6 @@ const ItemList = ({ itemsSource, visibility, setVisibility, refetch }) => {
                 {published_at ? null : <Badge>Hidden</Badge>}
               </HorizontalStack>
               <p>{body_html.replace(/<[^>]+>/g, "")}</p>
-
               <p>{getDate(updated_at)}</p>
             </ResourceItem>
           );
