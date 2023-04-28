@@ -1,17 +1,7 @@
-import {
-  AlphaCard,
-  Box,
-  HorizontalGrid,
-  Text,
-  VerticalStack,
-} from "@shopify/polaris";
+import { AlphaCard, Text, VerticalStack } from "@shopify/polaris";
 import React from "react";
 import { getTextContent } from "../../utils/htmlContent";
-
-const getUrl = (title) => {
-  const s = title.toLowerCase().split(" ");
-  return "https://quynhquynhiee.myshopify.com/pages/" + s.join("-");
-};
+import { getUrl } from "../../utils/preview";
 
 export const SearchEngine = ({ title, body_html }) => {
   return (

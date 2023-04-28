@@ -7,6 +7,7 @@ import {
   QueryProvider,
   PolarisProvider,
 } from "./components";
+import { Frame } from "@shopify/polaris";
 
 export default function App() {
   // Any .tsx or .jsx files in /pages will become a route
@@ -15,23 +16,31 @@ export default function App() {
 
   return (
     <PolarisProvider>
-      <BrowserRouter>
-        <AppBridgeProvider>
-          <QueryProvider>
-            <NavigationMenu
-              navigationLinks={
-                [
-                  // {
-                  //   label: "Page name",
-                  //   destination: "/pagename",
-                  // },
-                ]
-              }
-            />
-            <Routes pages={pages} />
-          </QueryProvider>
-        </AppBridgeProvider>
-      </BrowserRouter>
+      <Frame
+        logo={{
+          width: 100,
+          contextualSaveBarSource:
+            "https://cdn.shopify.com/shopifycloud/web/assets/v1/f5416ec27e17f00a.svg",
+        }}
+      >
+        <BrowserRouter>
+          <AppBridgeProvider>
+            <QueryProvider>
+              <NavigationMenu
+                navigationLinks={
+                  [
+                    // {
+                    //   label: "Page name",
+                    //   destination: "/pagename",
+                    // },
+                  ]
+                }
+              />
+              <Routes pages={pages} />
+            </QueryProvider>
+          </AppBridgeProvider>
+        </BrowserRouter>
+      </Frame>
     </PolarisProvider>
   );
 }

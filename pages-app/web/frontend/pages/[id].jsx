@@ -1,8 +1,12 @@
 import {
   Badge,
   Box,
+  ContextualSaveBar,
+  Frame,
   HorizontalGrid,
   Page,
+  PageActions,
+  Toast,
   VerticalStack,
 } from "@shopify/polaris";
 import { DuplicateMinor, ViewMinor, DeleteMinor } from "@shopify/polaris-icons";
@@ -16,6 +20,8 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuthenticatedFetch } from "@shopify/app-bridge-react";
 import { useAppQuery } from "../hooks";
+import ConfirmModal from "../components/pages/ConfirmModal";
+import { getUrl } from "../utils/preview";
 
 // This example is for guidance purposes. Copying it will come with caveats.
 function AddPage() {
@@ -25,6 +31,10 @@ function AddPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState();
   const [visibility, setVisibility] = useState("");
+  const [activeModal, setActiveModal] = useState(false);
+  const [activeToast, setActiveToast] = useState(false);
+  const [messageToast, setMessageToast] = useState("");
+  const [activeSaveBar, setActiveSaveBar] = useState(false);
 
   const { data, refetch } = useAppQuery({
     url: `/api/pages?id=${id}`,
@@ -40,6 +50,50 @@ function AddPage() {
       },
     },
   });
+
+  const bulkDelete = async () => {
+    setLoading(true);
+    console.log(id.split(","));
+    const res = await fetch(`/api/pages?id=${id}`, {
+      method: "DELETE",
+    });
+
+    if (res.ok) {
+      setActiveModal(false);
+      setLoading(false);
+      setMessageToast(`Page was deleted.`);
+      toggleActiveToast();
+      navigate("/");
+    } else {
+      console.log("NOT OK");
+    }
+  };
+
+  const toggleActiveToast = () => setActiveToast((activeToast) => !activeToast);
+
+  const toastMarkup = activeToast ? (
+    <Toast content={messageToast} onDismiss={toggleActiveToast} />
+  ) : null;
+
+  const saveBar = activeSaveBar ? (
+    <ContextualSaveBar
+      message="Unsaved changes"
+      saveAction={{
+        onAction: () => {
+          alert("Saved");
+          refetch();
+          setActiveSaveBar(false);
+        },
+      }}
+      discardAction={{
+        onAction: () => {
+          setLoading(true);
+          setActiveSaveBar(false);
+          refetch().then(() => setLoading(false));
+        },
+      }}
+    />
+  ) : null;
 
   if (loading === true) return <SkeletonExample />;
   return (
@@ -59,6 +113,7 @@ function AddPage() {
           icon: ViewMinor,
           accessibilityLabel: "Secondary action label",
           onAction: () => alert("Archive action"),
+          url: getUrl(page?.title),
         },
       ]}
       pagination={{
@@ -69,7 +124,7 @@ function AddPage() {
       <HorizontalGrid columns={{ xs: 1, md: "2fr 1fr" }} gap="4">
         <VerticalStack gap="4">
           {/* Editor Block */}
-          <FormEditor page={page} />
+          <FormEditor page={page} setActiveSaveBar={setActiveSaveBar} />
         </VerticalStack>
 
         <VerticalStack gap={{ xs: "4", md: "4" }}>
@@ -80,6 +135,31 @@ function AddPage() {
           <OnlineStore />
         </VerticalStack>
       </HorizontalGrid>
+      <br />
+      <PageActions
+        primaryAction={{
+          content: "Save",
+          disabled: true,
+        }}
+        secondaryActions={[
+          {
+            content: "Delete page",
+            destructive: true,
+            outline: true,
+            onAction: () => setActiveModal(true),
+          },
+        ]}
+      />
+      {toastMarkup}
+      <ConfirmModal
+        active={activeModal}
+        setActive={setActiveModal}
+        pagesNumber={1}
+        primaryAction={() => {
+          bulkDelete();
+        }}
+      />
+      {saveBar}
     </Page>
   );
 }

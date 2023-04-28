@@ -8,6 +8,7 @@ import {
   Link,
   Text,
   LegacyCard,
+  Frame,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 
@@ -91,9 +92,11 @@ export default function HomePage() {
           <ProductsCard />
         </Layout.Section>
       </Layout> */}
-      <LegacyCard>
-        <ContentTable />
-      </LegacyCard>
+      <Frame>
+        <LegacyCard>
+          <ContentTable />
+        </LegacyCard>
+      </Frame>
     </Page>
   );
 }

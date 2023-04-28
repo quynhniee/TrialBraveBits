@@ -130,7 +130,7 @@ app.put("/api/pages", async (_req, res) => {
   }
 });
 
-// Delete a page
+// Delete pages
 app.delete("/api/pages", async (_req, res) => {
   // @ts-ignore
   const ids = _req.query.id?.split(",");

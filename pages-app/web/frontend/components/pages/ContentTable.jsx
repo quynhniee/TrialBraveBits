@@ -14,11 +14,14 @@ import {
   ResourceItem,
   SkeletonTabs,
   SkeletonBodyText,
+  Toast,
 } from "@shopify/polaris";
 import React, { useEffect, useState } from "react";
 import { FavoriteMajor, SortMinor } from "@shopify/polaris-icons";
 import { useAppQuery } from "../../hooks";
-import { getTextContent } from "../../utils/htmlContent";
+import { useAuthenticatedFetch } from "@shopify/app-bridge-react";
+import { getUrl } from "../../utils/preview";
+import ConfirmModal from "./ConfirmModal";
 
 export const ContentFilters = ({
   visibility,
@@ -26,10 +29,12 @@ export const ContentFilters = ({
   sortItems,
   searchItems,
   changeTabHandle,
+  refetch,
+  selected,
+  setSelected,
 }) => {
   const [queryValue, setQueryValue] = useState("");
   const [active, setActive] = useState(false);
-  const [selected, setSelected] = useState("newest");
 
   const visibilityChangeHandle = (value) => {
     changeTabHandle(1);
@@ -72,7 +77,6 @@ export const ContentFilters = ({
   const toggleActive = () => setActive(!active);
 
   const sortChangeHandle = (value) => {
-    console.log(value[0]);
     sortItems(value[0]);
     setSelected(value[0]);
   };
@@ -89,6 +93,10 @@ export const ContentFilters = ({
       onRemove: visibilityRemoveHandle,
     });
   }
+
+  useEffect(() => {
+    sortItems(selected);
+  }, [refetch]);
 
   return (
     <Filters
@@ -141,18 +149,30 @@ export const ContentFilters = ({
   );
 };
 
-const ItemList = ({ itemsSource, visibility, setVisibility, refetch }) => {
-  const [items, setItems] = useState(itemsSource);
+const ItemList = ({
+  itemsSource,
+  setItemsSource,
+  visibility,
+  setVisibility,
+  refetch,
+}) => {
+  const fetch = useAuthenticatedFetch();
+  // const [items, setItems] = useState(itemsSource);
   const [selectedItems, setSelectedItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState(0);
   const [tabs, setTabs] = useState([{ content: "All", id: "all" }]);
+  const [sortSelected, setSortSelected] = useState("AtoZ");
+  const [activeToast, setActiveToast] = useState(false);
+  const [messageToast, setMessageToast] = useState("");
+  const [activeModal, setActiveModal] = useState(false);
 
   const changeTabHandle = (tabIndex) => {
     if (tabIndex === 0) {
       refetch();
       setTabs([{ content: "All", id: "all" }]);
       setSelectedTab(0);
+      setSortSelected("AtoZ");
     } else {
       setTabs([
         { content: "All", id: "all" },
@@ -161,59 +181,90 @@ const ItemList = ({ itemsSource, visibility, setVisibility, refetch }) => {
       setSelectedTab(1);
     }
   };
+
   const searchItems = (string) => {
     setLoading(true);
     string
-      ? setItems(
+      ? setItemsSource(
           itemsSource.filter((i) =>
             i.title.toLowerCase().startsWith(string.toLowerCase())
           )
         )
-      : setItems(itemsSource);
+      : refetch();
   };
 
   const sortItems = (type) => {
     setLoading(true);
-    let tmp = [...items];
+    let tmp = [...itemsSource];
     switch (type) {
       case "AtoZ":
         tmp.sort((a, b) => (a.title > b.title ? 1 : -1));
-        setItems(tmp);
+        setItemsSource(tmp);
         break;
       case "ZtoA":
         tmp.sort((a, b) => (a.title < b.title ? 1 : -1));
-        setItems(tmp);
+        setItemsSource(tmp);
         break;
-      case "oldest":
+      case "newest":
         tmp.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
-        setItems(tmp);
+        setItemsSource(tmp);
+        break;
       default:
         tmp.sort((a, b) => new Date(a.updated_at) - new Date(b.updated_at));
-        setItems(tmp);
+        setItemsSource(tmp);
+        break;
     }
   };
 
-  const bulkPublish = (published) => {
-    const { data, refetch } = useAppQuery({
-      url: `/api/pages/id=${selectedItems.toString()}`,
-      fetchInit: {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          published: published,
-        }),
+  const bulkPublished = async (published) => {
+    setLoading(true);
+    const res = await fetch(`/api/pages?id=${selectedItems.toString()}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
       },
-      reactQueryOptions: {
-        onSuccess: (data) => {
-          console.log(data);
-        },
-        onError: (error) => {
-          console.log(error);
-        },
-      },
+      body: JSON.stringify({
+        published: published,
+      }),
     });
+
+    if (res.ok) {
+      refetch()
+        .then(() => {
+          setSelectedItems([]);
+          setMessageToast(
+            published === true
+              ? `${selectedItems.length} page visible.`
+              : `Hide ${selectedItems.length}.`
+          );
+          toggleActiveToast();
+          setLoading(false);
+        })
+        .catch((error) => console.log(error));
+    } else {
+      console.log("NOT OK");
+    }
+  };
+
+  const bulkDelete = async () => {
+    setLoading(true);
+    const res = await fetch(`/api/pages?id=${selectedItems.toString()}`, {
+      method: "DELETE",
+    });
+
+    if (res.ok) {
+      refetch()
+        .then(() => {
+          setSelectedItems([]);
+          setActiveModal(false);
+          setMessageToast(`Delete ${selectedItems.length} items.`);
+          toggleActiveToast();
+          setLoading(false);
+        })
+        .catch((error) => console.log(error));
+    } else {
+      console.log("NOT OK");
+    }
   };
 
   const bulkActions = [
@@ -221,31 +272,38 @@ const ItemList = ({ itemsSource, visibility, setVisibility, refetch }) => {
       content: "Make selected pages visible",
       onAction: () => {
         console.log(selectedItems);
-        bulkPublish(true);
+        bulkPublished(true);
       },
     },
     {
       content: "Hide selected pages",
-      onAction: () => console.log("Hide selected pages"),
+      onAction: () => {
+        console.log(selectedItems);
+        bulkPublished(false);
+      },
     },
     {
       destructive: true,
       content: "Delete pages",
-      onAction: () => console.log("Delete pages"),
+      onAction: () => {
+        console.log(selectedItems);
+        setActiveModal(true);
+      },
     },
   ];
 
-  useEffect(() => {
-    setItems(itemsSource);
-    setLoading(false);
-  }, [itemsSource]);
+  const toggleActiveToast = () => setActiveToast((activeToast) => !activeToast);
+
+  const toastMarkup = activeToast ? (
+    <Toast content={messageToast} onDismiss={toggleActiveToast} />
+  ) : null;
 
   useEffect(() => {
     setSelectedItems([]);
     setTimeout(() => {
       setLoading(false);
     }, 500);
-  }, [items]);
+  }, [itemsSource]);
 
   useEffect(() => {
     setLoading(true);
@@ -257,8 +315,12 @@ const ItemList = ({ itemsSource, visibility, setVisibility, refetch }) => {
       <Tabs
         tabs={tabs}
         selected={selectedTab}
-        onSelect={(number) => setSelectedTab(number)}
+        onSelect={(number) => {
+          changeTabHandle(number);
+          setVisibility("");
+        }}
       />
+      {toastMarkup}
       <ResourceList
         resourceName={{ singular: "Pages", plural: "Pages" }}
         bulkActions={bulkActions}
@@ -269,9 +331,12 @@ const ItemList = ({ itemsSource, visibility, setVisibility, refetch }) => {
             setVisibility={setVisibility}
             sortItems={sortItems}
             searchItems={searchItems}
+            refetch={refetch}
+            selected={sortSelected}
+            setSelected={setSortSelected}
           />
         }
-        items={items}
+        items={itemsSource}
         selectedItems={selectedItems}
         onSelectionChange={setSelectedItems}
         selectable
@@ -279,11 +344,10 @@ const ItemList = ({ itemsSource, visibility, setVisibility, refetch }) => {
           const { id, title, body_html, published_at, updated_at } = item;
           const shortcutActions = [
             {
-              url: `/${id}`,
+              url: getUrl(title),
               content: published_at ? "View page" : "Preview page",
             },
           ];
-
           if (loading === true)
             return (
               <div style={{ padding: 16 }}>
@@ -309,6 +373,14 @@ const ItemList = ({ itemsSource, visibility, setVisibility, refetch }) => {
               <p>{getDate(updated_at)}</p>
             </ResourceItem>
           );
+        }}
+      />
+      <ConfirmModal
+        active={activeModal}
+        setActive={setActiveModal}
+        pagesNumber={selectedItems.length}
+        primaryAction={() => {
+          bulkDelete();
         }}
       />
     </>
@@ -375,6 +447,8 @@ export const ContentTable = () => {
       <SkeletonTabs />
       <div style={{ padding: 16 }}>
         <SkeletonBodyText />
+        <SkeletonBodyText />
+        <SkeletonBodyText />
       </div>
     </LegacyCard>
   );
@@ -386,6 +460,7 @@ export const ContentTable = () => {
       ) : (
         <ItemList
           itemsSource={itemsSource}
+          setItemsSource={setItemsSource}
           visibility={visibility}
           setVisibility={setVisibility}
           refetch={refetch}
