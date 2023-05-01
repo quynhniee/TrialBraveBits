@@ -1,12 +1,19 @@
 import {
   AlphaCard,
+  Box,
   Button,
   ChoiceList,
   Collapsible,
+  DatePicker,
+  Icon,
+  Popover,
   Text,
+  TextField,
   VerticalStack,
 } from "@shopify/polaris";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import DatePickerInput from "./DatePickerInput";
+import TimePickerInput from "./TimePickerInput";
 
 function getTimeZoneAbbreviation(date) {
   var timeZone = date.toString().match(/\((.*?)\)/);
@@ -16,8 +23,38 @@ function getTimeZoneAbbreviation(date) {
   return "";
 }
 
-export const Visibility = ({ dateString }) => {
-  const [visibility, setVisibility] = useState("visible");
+const DateTimePicker = ({ open, setOpen }) => {
+  const handleToggle = useCallback(() => setOpen((open) => !open), []);
+
+  return (
+    <div>
+      {open === false && (
+        <Button onClick={handleToggle} ariaExpanded={open} plain>
+          Set visibility date
+        </Button>
+      )}
+      <Collapsible
+        open={open}
+        id="basic-collapsible"
+        transition={{ duration: "100ms", timingFunction: "ease-in-out" }}
+        expandOnPrint
+      >
+        <VerticalStack gap="2">
+          <DatePickerInput />
+          <TimePickerInput />
+        </VerticalStack>
+      </Collapsible>
+      {open === true && (
+        <Button onClick={handleToggle} ariaExpanded={open} plain>
+          Clear date...
+        </Button>
+      )}
+    </div>
+  );
+};
+
+export const Visibility = ({ dateString, visibility, setVisibility }) => {
+  const [visiblePicker, setVisiblePicker] = useState(false);
   var date = dateString ? new Date(dateString) : new Date();
 
   var day = date.getDate();
@@ -40,30 +77,14 @@ export const Visibility = ({ dateString }) => {
     " " +
     getTimeZoneAbbreviation(date);
 
-  const TimePicker = () => {
-    const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (visibility === "visible") setVisiblePicker(false);
+  }, [visibility]);
 
-    const handleToggle = useCallback(() => setOpen((open) => !open), []);
-    return (
-      <div>
-        <Button onClick={handleToggle} ariaExpanded={open}>
-          Set visibility date
-        </Button>
-        <Collapsible
-          open={open}
-          id="basic-collapsible"
-          transition={{ duration: "500ms", timingFunction: "ease-in-out" }}
-          expandOnPrint
-        >
-          <p>
-            Your mailing list lets you contact customers or visitors who have
-            shown an interest in your store. Reach out to them with exclusive
-            offers or updates about your products.
-          </p>
-        </Collapsible>
-      </div>
-    );
-  };
+  useEffect(() => {
+    if (visiblePicker === true) setVisibility("hidden");
+  }, [visiblePicker]);
+
   return (
     <AlphaCard roundedAbove="sm">
       <VerticalStack gap="4">
@@ -84,7 +105,7 @@ export const Visibility = ({ dateString }) => {
             setVisibility(value[0]);
           }}
         />
-        <TimePicker />
+        <DateTimePicker open={visiblePicker} setOpen={setVisiblePicker} />
       </VerticalStack>
     </AlphaCard>
   );

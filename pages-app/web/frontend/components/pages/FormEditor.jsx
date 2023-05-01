@@ -8,10 +8,14 @@ import React, { useEffect, useState } from "react";
 import { TextEditor } from "./TextEditor";
 import { SearchEngine } from "./SearchEngine";
 
-export const FormEditor = ({ page, setActiveSaveBar }) => {
-  const [title, setTitle] = useState(page?.title);
-  const [body_html, setBody_html] = useState(page?.body_html);
-
+export const FormEditor = ({
+  page,
+  setActiveSaveBar,
+  title,
+  setTitle,
+  body_html,
+  setBody_html,
+}) => {
   useEffect(() => {
     if (title === page?.title && body_html === page?.body_html)
       setActiveSaveBar(false);
