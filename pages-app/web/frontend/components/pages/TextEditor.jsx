@@ -24,33 +24,6 @@ import {
   FaIndent,
 } from "react-icons/fa";
 
-const handleBoldClick = () => {
-  const selection = window.getSelection();
-  const range = selection.getRangeAt(0);
-  const boldElement = document.createElement("strong");
-  boldElement.textContent = selection.toString();
-  range.deleteContents();
-  range.insertNode(boldElement);
-};
-
-const handleItalicClick = () => {
-  const selection = window.getSelection();
-  const range = selection.getRangeAt(0);
-  const italicElement = document.createElement("em");
-  italicElement.textContent = selection.toString();
-  range.deleteContents();
-  range.insertNode(italicElement);
-};
-
-const handleUnderlineClick = () => {
-  const selection = window.getSelection();
-  const range = selection.getRangeAt(0);
-  const underlineElement = document.createElement("u");
-  underlineElement.textContent = selection.toString();
-  range.deleteContents();
-  range.insertNode(underlineElement);
-};
-
 export const TextEditor = ({ body_html, setBody_html }) => {
   const iframeRef = useRef();
   const [showCode, setShowCode] = useState(false);
@@ -59,25 +32,78 @@ export const TextEditor = ({ body_html, setBody_html }) => {
     setShowCode((prev) => setShowCode(!prev));
   };
 
-  const iframeOnLoad = () => {
+  const updateInnerHTML = () => {
     const doc =
-      iframeRef.current.contentDocument ||
-      iframeRef.current.contentWindow.document;
-    doc.designMode = "on";
-    doc.body.innerHTML = body_html;
-    doc.addEventListener("input", () => {
-      setBody_html(doc.body.innerHTML);
-      console.log(doc.body.innerHTML);
-    });
+      iframeRef.current.contentDocument || iframeRef.current.content.document;
+    setBody_html(doc.body.innerHTML);
+    return doc.body.innerHTML;
+  };
+
+  const handleBoldClick = () => {
+    const selection = iframeRef.current.contentWindow.getSelection();
+    const range = selection.getRangeAt(0);
+
+    const boldElement = document.createElement("strong");
+    boldElement.textContent = selection.toString();
+    range.deleteContents();
+    range.insertNode(boldElement);
+
+    // const anchorNode = selection.anchorNode.parentElement;
+    // const tagNameAnchorNode = anchorNode.tagName.toString();
+
+    // console.log(tagNameAnchorNode);
+
+    // let node;
+
+    // switch (tagNameAnchorNode) {
+    //   case "EM":
+    //     node = document.createElement("em");
+    //     break;
+    //   case "U":
+    //     node = document.createElement("u");
+    //     break;
+    //   default:
+    // }
+
+    // const boldElement = document.createElement("strong");
+    // boldElement.textContent = selection.toString();
+
+    // if (node) {
+    //   node.appendChild(boldElement);
+    // } else {
+    //   node = boldElement;
+    // }
+
+    // range.deleteContents();
+    // range.insertNode(node);
+
+    console.log(updateInnerHTML());
+  };
+
+  const handleItalicClick = () => {
+    const selection = iframeRef.current.contentWindow.getSelection();
+    const range = selection.getRangeAt(0);
+    const italicElement = document.createElement("em");
+    italicElement.textContent = selection.toString();
+    range.deleteContents();
+    range.insertNode(italicElement);
+  };
+
+  const handleUnderlineClick = () => {
+    const selection = iframeRef.current.contentWindow.getSelection();
+    const range = selection.getRangeAt(0);
+    const underlineElement = document.createElement("u");
+    underlineElement.textContent = selection.toString();
+    range.deleteContents();
+    range.insertNode(underlineElement);
   };
 
   useEffect(() => {
     if (showCode === true) return;
     const doc =
-      iframeRef.current.contentDocument ||
-      iframeRef.current.contentWindow.document;
+      iframeRef.current.contentDocument || iframeRef.current.content.document;
     doc.designMode = "on";
-    doc.body.innerHTML = body_html;
+    doc.body.innerHTML = body_html ?? "";
     doc.addEventListener("input", () => {
       setBody_html(doc.body.innerHTML);
     });
@@ -151,7 +177,7 @@ export const TextEditor = ({ body_html, setBody_html }) => {
           frameBorder="0"
           ref={iframeRef}
           // srcDoc={body_html}
-          onLoad={iframeOnLoad}
+          // onLoad={iframeOnLoad}
           style={{ minHeight: 200, display: showCode !== true ? "" : "none" }}
           onChange={(e) => console.log("change")}
         ></iframe>

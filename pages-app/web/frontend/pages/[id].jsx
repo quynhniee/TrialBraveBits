@@ -1,16 +1,14 @@
 import {
   Badge,
-  Box,
   ContextualSaveBar,
-  Frame,
   HorizontalGrid,
   Page,
   PageActions,
   Toast,
   VerticalStack,
 } from "@shopify/polaris";
-import { DuplicateMinor, ViewMinor, DeleteMinor } from "@shopify/polaris-icons";
-import React, { useEffect, useState } from "react";
+import { DuplicateMinor, ViewMinor } from "@shopify/polaris-icons";
+import React, { useState } from "react";
 import {
   FormEditor,
   OnlineStore,
@@ -36,8 +34,9 @@ function AddPage() {
   const [activeSaveBar, setActiveSaveBar] = useState(false);
   const [title, setTitle] = useState();
   const [body_html, setBody_html] = useState();
+  const [isError, setIsError] = useState();
 
-  const { data, refetch } = useAppQuery({
+  const { refetch } = useAppQuery({
     url: `/api/pages?id=${id}`,
     reactQueryOptions: {
       onSuccess: (data) => {
@@ -79,6 +78,11 @@ function AddPage() {
   ) : null;
 
   const handleUpdatePage = () => {
+    if (title.trim() === "") {
+      setIsError(true);
+      return;
+    }
+    setIsError();
     const updatedData = {
       title: title,
       body_html: body_html,
@@ -96,7 +100,16 @@ function AddPage() {
       .then((res) => res.json())
       .then((data) => {
         console.log("OK");
+        setPage({
+          ...page,
+          ...data,
+          title,
+          body_html,
+          published: visibility === "visible" ? true : false,
+        });
         refetch();
+        setMessageToast(`Page was updated.`);
+        toggleActiveToast();
         console.log(data);
         setLoading(false);
       })
@@ -106,8 +119,7 @@ function AddPage() {
   };
 
   const saveAction = () => {
-    alert("Saved");
-    refetch();
+    handleUpdatePage();
     setActiveSaveBar(false);
   };
 
@@ -164,15 +176,18 @@ function AddPage() {
             setTitle={setTitle}
             body_html={body_html}
             setBody_html={setBody_html}
+            isError={isError}
           />
         </VerticalStack>
 
         <VerticalStack gap={{ xs: "4", md: "4" }}>
           {/* Visibility */}
           <Visibility
+            page={page}
             dateString={page?.published_at}
             visibility={visibility}
             setVisibility={setVisibility}
+            setActiveSaveBar={setActiveSaveBar}
           />
 
           {/* Online store */}

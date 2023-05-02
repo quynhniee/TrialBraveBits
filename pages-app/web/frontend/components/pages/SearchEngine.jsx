@@ -8,7 +8,7 @@ export const SearchEngine = ({ title, body_html }) => {
     <AlphaCard roundedAbove="sm">
       <VerticalStack gap="4">
         <Text fontWeight="bold">Search engine listing preview</Text>
-        {title ? (
+        {title && body_html ? (
           <div>
             <Text variant="headingLg">{title}</Text>
             <Text color="success">{getUrl(title)}</Text>

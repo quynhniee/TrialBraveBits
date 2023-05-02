@@ -53,7 +53,13 @@ const DateTimePicker = ({ open, setOpen }) => {
   );
 };
 
-export const Visibility = ({ dateString, visibility, setVisibility }) => {
+export const Visibility = ({
+  page,
+  dateString,
+  visibility,
+  setVisibility,
+  setActiveSaveBar,
+}) => {
   const [visiblePicker, setVisiblePicker] = useState(false);
   var date = dateString ? new Date(dateString) : new Date();
 
@@ -79,6 +85,10 @@ export const Visibility = ({ dateString, visibility, setVisibility }) => {
 
   useEffect(() => {
     if (visibility === "visible") setVisiblePicker(false);
+    const tmp = page?.published_at ? "visible" : "hidden";
+    console.log(page?.published_at, visibility);
+    if (visibility !== tmp) setActiveSaveBar(true);
+    else setActiveSaveBar(false);
   }, [visibility]);
 
   useEffect(() => {

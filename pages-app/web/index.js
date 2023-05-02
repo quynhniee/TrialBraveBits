@@ -59,7 +59,7 @@ app.get("/api/products/create", async (_req, res) => {
 
 // Create a page
 app.post("/api/pages", async (_req, res) => {
-  const data = _req.body.page;
+  const data = _req.body;
   const page = new shopify.api.rest.Page({
     session: res.locals.shopify.session,
   });
@@ -69,7 +69,7 @@ app.post("/api/pages", async (_req, res) => {
   await page.save({
     update: true,
   });
-  res.status(200).send(page.data);
+  res.status(200).send(page);
 });
 
 // Get pages

@@ -1,6 +1,7 @@
 import {
   AlphaCard,
   FormLayout,
+  InlineError,
   TextField,
   VerticalStack,
 } from "@shopify/polaris";
@@ -15,9 +16,10 @@ export const FormEditor = ({
   setTitle,
   body_html,
   setBody_html,
+  isError,
 }) => {
   useEffect(() => {
-    if (title === page?.title && body_html === page?.body_html)
+    if (title == page?.title && body_html == page?.body_html)
       setActiveSaveBar(false);
     else setActiveSaveBar(true);
   }, [title, body_html]);
@@ -35,7 +37,12 @@ export const FormEditor = ({
               }}
               autoComplete="off"
               placeholder="e.g. Contact us, Sizing chart, FAQs"
+              id="title"
             />
+            {isError && (
+              <InlineError message="Title can't be blank" fieldID="title" />
+            )}
+
             <TextEditor
               body_html={body_html}
               setBody_html={setBody_html}
@@ -44,6 +51,7 @@ export const FormEditor = ({
           </FormLayout>
         </VerticalStack>
       </AlphaCard>
+
       <SearchEngine title={title} body_html={body_html} />
     </>
   );
