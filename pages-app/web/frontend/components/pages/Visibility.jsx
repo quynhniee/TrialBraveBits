@@ -85,10 +85,10 @@ export const Visibility = ({
 
   useEffect(() => {
     if (visibility === "visible") setVisiblePicker(false);
-    const tmp = page?.published_at ? "visible" : "hidden";
-    console.log(page?.published_at, visibility);
-    if (visibility !== tmp) setActiveSaveBar(true);
-    else setActiveSaveBar(false);
+    // const tmp = page?.published_at ? "visible" : "hidden";
+    // console.log(page?.published_at, visibility);
+    // if (visibility !== tmp) setActiveSaveBar(true);
+    // else setActiveSaveBar(false);
   }, [visibility]);
 
   useEffect(() => {

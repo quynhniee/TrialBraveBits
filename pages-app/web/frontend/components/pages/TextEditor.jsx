@@ -36,7 +36,6 @@ export const TextEditor = ({ body_html, setBody_html }) => {
     const doc =
       iframeRef.current.contentDocument || iframeRef.current.content.document;
     setBody_html(doc.body.innerHTML);
-    return doc.body.innerHTML;
   };
 
   const handleBoldClick = () => {
@@ -77,7 +76,7 @@ export const TextEditor = ({ body_html, setBody_html }) => {
     // range.deleteContents();
     // range.insertNode(node);
 
-    console.log(updateInnerHTML());
+    updateInnerHTML();
   };
 
   const handleItalicClick = () => {
@@ -87,6 +86,7 @@ export const TextEditor = ({ body_html, setBody_html }) => {
     italicElement.textContent = selection.toString();
     range.deleteContents();
     range.insertNode(italicElement);
+    updateInnerHTML();
   };
 
   const handleUnderlineClick = () => {
@@ -96,6 +96,7 @@ export const TextEditor = ({ body_html, setBody_html }) => {
     underlineElement.textContent = selection.toString();
     range.deleteContents();
     range.insertNode(underlineElement);
+    updateInnerHTML();
   };
 
   useEffect(() => {
@@ -107,9 +108,6 @@ export const TextEditor = ({ body_html, setBody_html }) => {
     doc.addEventListener("input", () => {
       setBody_html(doc.body.innerHTML);
     });
-    // doc.write(
-    //   `<html><head></head><body><p>${body_html ?? ""}</p></body></html>`
-    // );
   }, [showCode]);
 
   const TextFormatButtonGroup = () => (
