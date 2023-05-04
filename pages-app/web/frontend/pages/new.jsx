@@ -17,6 +17,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuthenticatedFetch } from "@shopify/app-bridge-react";
 import { getUrl } from "../utils/preview";
+import DiscardModal from "../components/pages/DiscardModal";
 
 function AddPage() {
   const fetch = useAuthenticatedFetch();
@@ -27,6 +28,7 @@ function AddPage() {
   const [activeToast, setActiveToast] = useState(false);
   const [messageToast, setMessageToast] = useState("");
   const [activeSaveBar, setActiveSaveBar] = useState(false);
+  const [activeDiscardModal, setActiveDiscardModal] = useState(false);
   const [title, setTitle] = useState();
   const [body_html, setBody_html] = useState();
   const [isError, setIsError] = useState();
@@ -88,7 +90,7 @@ function AddPage() {
         disabled: !activeSaveBar,
       }}
       discardAction={{
-        onAction: discardAction,
+        onAction: () => setActiveDiscardModal(true),
       }}
     />
   );
@@ -139,7 +141,11 @@ function AddPage() {
         ]}
       />
       {toastMarkup}
-
+      <DiscardModal
+        active={activeDiscardModal}
+        setActive={setActiveDiscardModal}
+        primaryAction={() => discardAction()}
+      />
       {saveBar}
     </Page>
   );

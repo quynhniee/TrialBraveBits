@@ -20,6 +20,8 @@ import { useAuthenticatedFetch } from "@shopify/app-bridge-react";
 import { useAppQuery } from "../hooks";
 import ConfirmModal from "../components/pages/ConfirmModal";
 import { getUrl } from "../utils/preview";
+import DiscardModal from "../components/pages/DiscardModal";
+import DuplicateModal from "../components/pages/DuplicateModal";
 
 function AddPage() {
   const { id } = useParams();
@@ -28,13 +30,16 @@ function AddPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState();
   const [visibility, setVisibility] = useState("hidden");
-  const [activeModal, setActiveModal] = useState(false);
+  const [activeConfirmModal, setActiveConfirmModal] = useState(false);
+  const [activeDiscardModal, setActiveDiscardModal] = useState(false);
+  const [activeDuplicateModal, setActiveDuplicateModal] = useState(false);
   const [activeToast, setActiveToast] = useState(false);
   const [messageToast, setMessageToast] = useState("");
   const [activeSaveBar, setActiveSaveBar] = useState(false);
   const [title, setTitle] = useState();
   const [body_html, setBody_html] = useState();
   const [isError, setIsError] = useState();
+  const [newPageTitle, setNewPageTitle] = useState();
 
   const { refetch } = useAppQuery({
     url: `/api/pages?id=${id}`,
@@ -45,6 +50,7 @@ function AddPage() {
         setVisibility(data.published_at ? "visible" : "hidden");
         setTitle(data.title);
         setBody_html(data.body_html);
+        setIsError();
         setLoading(false);
       },
       onError: (error) => {
@@ -61,7 +67,7 @@ function AddPage() {
     });
 
     if (res.ok) {
-      setActiveModal(false);
+      setActiveConfirmModal(false);
       setLoading(false);
       setMessageToast(`Page was deleted.`);
       toggleActiveToast();
@@ -118,6 +124,40 @@ function AddPage() {
       });
   };
 
+  const handleCreatePage = (pageTitle) => {
+    if (!pageTitle || pageTitle.trim() === "") {
+      setIsError(true);
+    } else {
+      setIsError();
+      const updatedData = {
+        title: pageTitle,
+        body_html: body_html,
+        published: visibility !== "visible" ? null : true,
+      };
+      setLoading(true);
+      console.log(updatedData);
+      fetch("/api/pages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          console.log("OKE");
+
+          setTimeout(() => {
+            navigate(`/${data.id}`);
+          }, 1000);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
+
   const saveAction = () => {
     handleUpdatePage();
     setActiveSaveBar(false);
@@ -126,6 +166,7 @@ function AddPage() {
   const discardAction = () => {
     setLoading(true);
     setActiveSaveBar(false);
+    setActiveDiscardModal(false);
     refetch().then(() => setLoading(false));
   };
 
@@ -136,7 +177,7 @@ function AddPage() {
         onAction: saveAction,
       }}
       discardAction={{
-        onAction: discardAction,
+        onAction: () => setActiveDiscardModal(true),
       }}
     />
   ) : null;
@@ -152,7 +193,10 @@ function AddPage() {
           content: "Duplicate",
           icon: DuplicateMinor,
           accessibilityLabel: "Secondary action label",
-          onAction: () => alert("Duplicate action"),
+          onAction: () => {
+            setNewPageTitle("Copy of " + title);
+            setActiveDuplicateModal(true);
+          },
         },
         {
           content: "View page",
@@ -206,17 +250,32 @@ function AddPage() {
             content: "Delete page",
             destructive: true,
             outline: true,
-            onAction: () => setActiveModal(true),
+            onAction: () => setActiveConfirmModal(true),
           },
         ]}
       />
       {toastMarkup}
       <ConfirmModal
-        active={activeModal}
-        setActive={setActiveModal}
+        active={activeConfirmModal}
+        setActive={setActiveConfirmModal}
         pagesNumber={1}
         primaryAction={() => {
           bulkDelete();
+        }}
+      />
+      <DiscardModal
+        active={activeDiscardModal}
+        setActive={setActiveDiscardModal}
+        primaryAction={() => discardAction()}
+      />
+      <DuplicateModal
+        active={activeDuplicateModal}
+        setActive={setActiveDuplicateModal}
+        title={newPageTitle}
+        setTitle={setNewPageTitle}
+        primaryAction={() => {
+          setActiveDuplicateModal(false);
+          handleCreatePage(newPageTitle);
         }}
       />
       {saveBar}

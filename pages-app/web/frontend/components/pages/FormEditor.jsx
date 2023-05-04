@@ -38,10 +38,8 @@ export const FormEditor = ({
               autoComplete="off"
               placeholder="e.g. Contact us, Sizing chart, FAQs"
               id="title"
+              error={isError === true ? "Title can't be blank" : undefined}
             />
-            {isError && (
-              <InlineError message="Title can't be blank" fieldID="title" />
-            )}
 
             <TextEditor
               body_html={body_html}
