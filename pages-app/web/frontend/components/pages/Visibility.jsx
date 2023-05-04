@@ -59,6 +59,7 @@ export const Visibility = ({
   visibility,
   setVisibility,
   setActiveSaveBar,
+  currentVisibility,
 }) => {
   const [visiblePicker, setVisiblePicker] = useState(false);
   var date = dateString ? new Date(dateString) : new Date();
@@ -83,13 +84,14 @@ export const Visibility = ({
     " " +
     getTimeZoneAbbreviation(date);
 
-  useEffect(() => {
-    if (visibility === "visible") setVisiblePicker(false);
-    // const tmp = page?.published_at ? "visible" : "hidden";
-    // console.log(page?.published_at, visibility);
-    // if (visibility !== tmp) setActiveSaveBar(true);
-    // else setActiveSaveBar(false);
-  }, [visibility]);
+  // useEffect(() => {
+  //   if (visibility === "visible") setVisiblePicker(false);
+  //   // const tmp = page?.published_at ? "visible" : "hidden";
+  //   // console.log(page?.published_at, visibility);
+  //   // if (visibility !== tmp) setActiveSaveBar(true);
+  //   // else setActiveSaveBar(false);
+  //   setActiveSaveBar(visibility !== currentVisibility ? true : false);
+  // }, [visibility]);
 
   useEffect(() => {
     if (visiblePicker === true) setVisibility("hidden");

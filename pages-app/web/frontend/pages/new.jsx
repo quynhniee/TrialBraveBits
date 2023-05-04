@@ -7,7 +7,7 @@ import {
   Toast,
   VerticalStack,
 } from "@shopify/polaris";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FormEditor,
   OnlineStore,
@@ -25,6 +25,7 @@ function AddPage() {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState();
   const [visibility, setVisibility] = useState("visible");
+  const [currentVisibility, setCurrentVisibility] = useState("visible");
   const [activeToast, setActiveToast] = useState(false);
   const [messageToast, setMessageToast] = useState("");
   const [activeSaveBar, setActiveSaveBar] = useState(false);
@@ -95,6 +96,16 @@ function AddPage() {
     />
   );
 
+  useEffect(() => {
+    if (
+      title == page?.title &&
+      body_html == page?.body_html &&
+      visibility === currentVisibility
+    )
+      setActiveSaveBar(false);
+    else setActiveSaveBar(true);
+  }, [visibility, title, body_html]);
+
   if (loading === true) return <SkeletonExample />;
   return (
     <Page backAction={{ content: "Add page", url: "/" }} title={"Add page"}>
@@ -119,6 +130,7 @@ function AddPage() {
             visibility={visibility}
             setVisibility={setVisibility}
             setActiveSaveBar={setActiveSaveBar}
+            currentVisibility={currentVisibility}
           />
 
           {/* Online store */}

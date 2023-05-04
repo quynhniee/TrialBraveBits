@@ -18,11 +18,11 @@ export const FormEditor = ({
   setBody_html,
   isError,
 }) => {
-  useEffect(() => {
-    if (title == page?.title && body_html == page?.body_html)
-      setActiveSaveBar(false);
-    else setActiveSaveBar(true);
-  }, [title, body_html]);
+  // useEffect(() => {
+  // if (title == page?.title && body_html == page?.body_html)
+  //   setActiveSaveBar(false);
+  // else setActiveSaveBar(true);
+  // }, [title, body_html]);
 
   return (
     <>

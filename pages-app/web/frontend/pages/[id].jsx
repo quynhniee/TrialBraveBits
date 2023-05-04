@@ -8,7 +8,7 @@ import {
   VerticalStack,
 } from "@shopify/polaris";
 import { DuplicateMinor, ViewMinor } from "@shopify/polaris-icons";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FormEditor,
   OnlineStore,
@@ -36,6 +36,7 @@ function AddPage() {
   const [activeToast, setActiveToast] = useState(false);
   const [messageToast, setMessageToast] = useState("");
   const [activeSaveBar, setActiveSaveBar] = useState(false);
+  const [currentVisibility, setCurrentVisibility] = useState();
   const [title, setTitle] = useState();
   const [body_html, setBody_html] = useState();
   const [isError, setIsError] = useState();
@@ -48,6 +49,7 @@ function AddPage() {
         console.log(data);
         setPage(data);
         setVisibility(data.published_at ? "visible" : "hidden");
+        setCurrentVisibility(data.published_at ? "visible" : "hidden");
         setTitle(data.title);
         setBody_html(data.body_html);
         setIsError();
@@ -182,6 +184,16 @@ function AddPage() {
     />
   ) : null;
 
+  useEffect(() => {
+    if (
+      title == page?.title &&
+      body_html == page?.body_html &&
+      visibility === currentVisibility
+    )
+      setActiveSaveBar(false);
+    else setActiveSaveBar(true);
+  }, [visibility, title, body_html]);
+
   if (loading === true) return <SkeletonExample />;
   return (
     <Page
@@ -232,6 +244,7 @@ function AddPage() {
             visibility={visibility}
             setVisibility={setVisibility}
             setActiveSaveBar={setActiveSaveBar}
+            currentVisibility={currentVisibility}
           />
 
           {/* Online store */}
