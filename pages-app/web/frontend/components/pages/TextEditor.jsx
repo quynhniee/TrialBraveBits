@@ -38,64 +38,51 @@ export const TextEditor = ({ body_html, setBody_html }) => {
     setBody_html(doc.body.innerHTML);
   };
 
-  const handleBoldClick = () => {
+  const onClick = (tag) => {
     const selection = iframeRef.current.contentWindow.getSelection();
-    const range = selection.getRangeAt(0);
+    const doc =
+      iframeRef.current.contentDocument || iframeRef.current.content.document;
 
-    const boldElement = document.createElement("strong");
-    boldElement.textContent = selection.toString();
-    range.deleteContents();
-    range.insertNode(boldElement);
+    const range = selection.getRangeAt(0)?.cloneRange();
+    const firstSelectionTag = document.createElement("selected-element");
 
-    // const anchorNode = selection.anchorNode.parentElement;
-    // const tagNameAnchorNode = anchorNode.tagName.toString();
+    firstSelectionTag.appendChild(range.extractContents());
+    range.insertNode(firstSelectionTag);
+    let content = doc.body.innerHTML;
+    const selected = doc.querySelector("selected-element");
 
-    // console.log(tagNameAnchorNode);
+    // const regex = new RegExp(`<(/?|\\!?)[(strong)(em)(u)].*?>`, "g");
+    const regex = new RegExp(`<(/?|\\!?)${tag}.*?>`, "g");
+    // const regex2 = new RegExp(`<${tag}>.*?<\/${tag}>`, "g");
+    const regex2 = new RegExp(
+      `^<${tag}>.*<\/${tag}>(<${tag}>.*<\/${tag}>)*$`,
+      "g"
+    );
 
-    // let node;
+    // Trường hợp ở bên trong 1 thẻ giống nó
+    if (selected.parentElement.tagName === tag.toUpperCase()) {
+      let outerHTML = selected.outerHTML;
+      content = content.replace(
+        outerHTML,
+        `</${tag}>${outerHTML.replaceAll(regex, "")}<${tag}>`
+      );
+    } else if (regex2.test(selected.innerHTML)) {
+      // Bên trong chứa toàn thẻ con giống nó
+      let outerHTML = selected.outerHTML;
+      content = content.replace(
+        outerHTML,
+        `${outerHTML.replaceAll(regex, "")}`
+      );
+    } else {
+      let outerHTML = selected.outerHTML;
+      content = content.replace(
+        outerHTML,
+        `<${tag}>${outerHTML.replaceAll(regex, "")}</${tag}>`
+      );
+    }
 
-    // switch (tagNameAnchorNode) {
-    //   case "EM":
-    //     node = document.createElement("em");
-    //     break;
-    //   case "U":
-    //     node = document.createElement("u");
-    //     break;
-    //   default:
-    // }
-
-    // const boldElement = document.createElement("strong");
-    // boldElement.textContent = selection.toString();
-
-    // if (node) {
-    //   node.appendChild(boldElement);
-    // } else {
-    //   node = boldElement;
-    // }
-
-    // range.deleteContents();
-    // range.insertNode(node);
-
-    updateInnerHTML();
-  };
-
-  const handleItalicClick = () => {
-    const selection = iframeRef.current.contentWindow.getSelection();
-    const range = selection.getRangeAt(0);
-    const italicElement = document.createElement("em");
-    italicElement.textContent = selection.toString();
-    range.deleteContents();
-    range.insertNode(italicElement);
-    updateInnerHTML();
-  };
-
-  const handleUnderlineClick = () => {
-    const selection = iframeRef.current.contentWindow.getSelection();
-    const range = selection.getRangeAt(0);
-    const underlineElement = document.createElement("u");
-    underlineElement.textContent = selection.toString();
-    range.deleteContents();
-    range.insertNode(underlineElement);
+    content = content.replaceAll(/<(\/?|\!?)selected-element.*?>/g, "");
+    doc.body.innerHTML = content;
     updateInnerHTML();
   };
 
@@ -114,17 +101,17 @@ export const TextEditor = ({ body_html, setBody_html }) => {
     <HorizontalStack gap="2">
       <ButtonGroup segmented>
         <Tooltip content="Bold" dismissOnMouseOut>
-          <Button size="slim" onClick={handleBoldClick}>
+          <Button size="slim" onClick={() => onClick("strong")}>
             <FaBold />
           </Button>
         </Tooltip>
         <Tooltip content="Italic" dismissOnMouseOut>
-          <Button size="slim" onClick={handleItalicClick}>
+          <Button size="slim" onClick={() => onClick("em")}>
             <FaItalic />
           </Button>
         </Tooltip>
         <Tooltip content="Underline" dismissOnMouseOut>
-          <Button size="slim" onClick={handleUnderlineClick}>
+          <Button size="slim" onClick={() => onClick("u")}>
             <FaUnderline />
           </Button>
         </Tooltip>
