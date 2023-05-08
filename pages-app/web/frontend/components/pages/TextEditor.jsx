@@ -11,7 +11,7 @@ import {
   Tooltip,
   VerticalStack,
 } from "@shopify/polaris";
-import { EmbedMinor } from "@shopify/polaris-icons";
+import { EmbedMinor, LinkMinor } from "@shopify/polaris-icons";
 import React, { useEffect, useRef, useState } from "react";
 import {
   FaBold,
@@ -44,16 +44,14 @@ export const TextEditor = ({ body_html, setBody_html }) => {
       iframeRef.current.contentDocument || iframeRef.current.content.document;
 
     const range = selection.getRangeAt(0)?.cloneRange();
-    const firstSelectionTag = document.createElement("selected-element");
+    const selectionTag = document.createElement("selected-element");
 
-    firstSelectionTag.appendChild(range.extractContents());
-    range.insertNode(firstSelectionTag);
+    selectionTag.appendChild(range.extractContents());
+    range.insertNode(selectionTag);
     let content = doc.body.innerHTML;
     const selected = doc.querySelector("selected-element");
 
-    // const regex = new RegExp(`<(/?|\\!?)[(strong)(em)(u)].*?>`, "g");
     const regex = new RegExp(`<(/?|\\!?)${tag}.*?>`, "g");
-    // const regex2 = new RegExp(`<${tag}>.*?<\/${tag}>`, "g");
     const regex2 = new RegExp(
       `^<${tag}>.*<\/${tag}>(<${tag}>.*<\/${tag}>)*$`,
       "g"
@@ -83,6 +81,64 @@ export const TextEditor = ({ body_html, setBody_html }) => {
 
     content = content.replaceAll(/<(\/?|\!?)selected-element.*?>/g, "");
     doc.body.innerHTML = content;
+    updateInnerHTML();
+  };
+
+  const changePaddingHandle = (tag) => {
+    const selection = iframeRef.current.contentWindow.getSelection();
+    if (!selection.focusNode) return;
+
+    const range = selection.getRangeAt(0);
+    const parentDiv = range.commonAncestorContainer.parentNode.closest("div");
+    const paddingLeft =
+      parentDiv.style.paddingLeft != ""
+        ? +parentDiv.style.paddingLeft.slice(0, -2)
+        : 0;
+    console.log(paddingLeft);
+    if (tag === "indent") parentDiv.style.paddingLeft = paddingLeft + 20;
+    else if (paddingLeft > 0) {
+      parentDiv.style.paddingLeft = paddingLeft - 20;
+    }
+    updateInnerHTML();
+  };
+
+  const changeListHandle = (tag) => {
+    const selection = iframeRef.current.contentWindow.getSelection();
+    if (!selection.focusNode) return;
+
+    const range = selection.getRangeAt(0);
+    const parentDiv = range.commonAncestorContainer.parentNode.closest("div");
+    const siblingListElement =
+      parentDiv.previousSibling ?? parentDiv.nextSibling;
+
+    if (!range.commonAncestorContainer.parentNode.closest("li")) {
+      const listItemTag = document.createElement("li");
+      listItemTag.appendChild(parentDiv);
+
+      if (
+        !siblingListElement ||
+        siblingListElement.tagName !== tag.toUpperCase()
+      ) {
+        const listTag = document.createElement(tag);
+        listTag.appendChild(listItemTag);
+        range.insertNode(listTag);
+      } else {
+        siblingListElement.insertAdjacentHTML(
+          "beforeend",
+          listItemTag.outerHTML
+        );
+      }
+    } else {
+      const listElement = range.commonAncestorContainer.parentNode.closest(tag);
+      const listItemElement = listElement.querySelectorAll("div");
+
+      listItemElement.forEach((ele) => {
+        listElement.insertAdjacentHTML("beforebegin", ele.outerHTML);
+      });
+      listElement.remove();
+      console.log(listItemElement);
+    }
+    selection.removeRange(range);
     updateInnerHTML();
   };
 
@@ -118,14 +174,33 @@ export const TextEditor = ({ body_html, setBody_html }) => {
       </ButtonGroup>
 
       <ButtonGroup segmented>
+        <Tooltip content="BulletedList" dismissOnMouseOut>
+          <Button size="slim" onClick={() => changeListHandle("ul")}>
+            <FaListUl />
+          </Button>
+        </Tooltip>
+        <Tooltip content="NumberedList" dismissOnMouseOut>
+          <Button size="slim" onClick={() => changeListHandle("ol")}>
+            <FaListOl />
+          </Button>
+        </Tooltip>
+
         <Tooltip content="Outdent" dismissOnMouseOut>
-          <Button size="slim">
+          <Button size="slim" onClick={() => changePaddingHandle("outdent")}>
             <FaOutdent />
           </Button>
         </Tooltip>
         <Tooltip content="Indent" dismissOnMouseOut>
-          <Button size="slim">
+          <Button size="slim" onClick={() => changePaddingHandle("indent")}>
             <FaIndent />
+          </Button>
+        </Tooltip>
+      </ButtonGroup>
+
+      <ButtonGroup segmented>
+        <Tooltip content="Link" dismissOnMouseOut>
+          <Button size="slim" disabled>
+            <Icon source={LinkMinor} color="base" />
           </Button>
         </Tooltip>
       </ButtonGroup>
